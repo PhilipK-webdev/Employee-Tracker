@@ -29,11 +29,7 @@ function addCompany() {
                 break;
 
             case "roles":
-                readRoles().then(res => {
-
-                    const data = res;
-                    roles(data);
-                });
+                roles();
                 break;
 
             case "employee":
@@ -86,38 +82,22 @@ const addDepartment = (name) => {
     });
 };
 
-function roles(data) {
+function roles() {
 
-    inquirer.prompt([{
-
-        type: "input",
-        name: "title",
-        message: "What is the title?",
-        when: (answers) => answers.title !== "Manager",
-    },
-    {
-        type: "input",
-        name: "salary",
-        message: "Amount of the salary",
-    },
-    {
-        type: "list",
-        name: "departmentId",
-        message: "Which department you want to add the role?",
-        choices: [
-            "1-Sales",
-            "2-DEvelopers",
-            "3-UI/UX",
-            "4-Product",
-            "5-QA"
-        ],
-    },
-
-    ]).then(res => {
-
-        console.log(res);
-
-    });
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "departmentId",
+            message: "Which department you want to add the role?",
+            choices: [
+                "1-Sales",
+                "2-DEvelopers",
+                "3-UI/UX",
+                "4-Product",
+                "5-QA"
+            ],
+        },
+    ]).then(res => { })
 
 }
 
@@ -136,11 +116,15 @@ const readRoles = () => {
 
 const confirmAnswer = async (input) => {
 
+    if (input !== "Manager") {
+        return true;
+    } else {
 
+        return console.log("Manager alredy exists in the department");
+    }
 
 };
 
-roles();
 
 
 
