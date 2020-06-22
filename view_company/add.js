@@ -1,7 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-
+const mainMenu = require("./main-menu.js");
 
 const add = () => {
 
@@ -18,7 +18,8 @@ function addCompany() {
         choices: [
             "department",
             "roles",
-            "employee"
+            "employee",
+            "Main Menu"
         ],
 
     }]).then(res => {
@@ -34,6 +35,10 @@ function addCompany() {
 
             case "employee":
                 searchMenu();
+                break;
+
+            case "Main Menu":
+                mainMenu().then(res => console.log(res));
                 break;
 
             case "Exit":
@@ -82,9 +87,9 @@ const addDepartment = (name) => {
     });
 };
 
-function roles() {
+async function roles() {
 
-    inquirer.prompt([
+    await inquirer.prompt([
         {
             type: "list",
             name: "departmentId",
@@ -141,12 +146,14 @@ function roles() {
                         };
 
                         console.log(ObjRole);
+                        addCompany();
 
                     });
-                    // addCompany();
+
+
                 }
             }
-        });
+        }).catch(err => console.log(err));
     })
 
 }
