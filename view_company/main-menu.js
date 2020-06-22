@@ -1,6 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
+const add = require("./add.js");
 
 const mainMenu = () => {
     inquirer
@@ -15,12 +16,12 @@ const mainMenu = () => {
         .then((res) => {
             switch (res.mainMenu) {
 
-                case "View all":
+                case "View all Company":
                     viewCompany();
                     break;
 
                 case "Add":
-                    searchMenu();
+                    add();
                     break;
 
                 case "Update":
@@ -61,7 +62,8 @@ function viewCompany() {
 
     }]).then(res => {
 
-        const result = res.view;
+        let result = res.view;
+        console.log(result);
         readAllCompany(result).then((res) => {
             const table = cTable.getTable(res);
             console.log(table);
