@@ -90,20 +90,74 @@ function roles() {
             name: "departmentId",
             message: "Which department you want to add the role?",
             choices: [
-                "1-Sales",
-                "2-DEvelopers",
-                "3-UI/UX",
-                "4-Product",
-                "5-QA"
+                "Sales",
+                "Developers",
+                "UI/UX",
+                "Product",
+                "QA"
             ],
         },
-    ]).then(res => { })
+    ]).then(res => {
+
+        var result = res.departmentId;
+        joinRolesDepartment().then(res => {
+
+            const map = res.map(element => {
+
+                return {
+                    id: element.id,
+                    title: element.title,
+                    name: element.depatrmentName
+                };
+            });
+
+            for (let i = 0; i < map.length; i++) {
+
+                if (result === map[i].name && map[i].title === "Manager") {
+
+                    console.log("Already has a manager");
+
+                    inquirer.prompt([
+
+                        {
+                            type: "input",
+                            name: "title",
+                            message: "What is the role in the company?",
+                        },
+                        {
+                            type: "input",
+                            name: "salary",
+                            message: "What is the salary?",
+                        },
+
+                    ]).then(res => {
+
+
+                        const ObjRole = {
+
+                            id: map[i].id,
+                            title: res.title,
+                            salary: res.salary
+                        };
+
+                        console.log(ObjRole);
+
+                    });
+                    // addCompany();
+                }
+            }
+        });
+    })
 
 }
 
-const readRoles = () => {
+const joinRolesDepartment = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM roles `, (err, data) => {
+        connection.query(`
+        SELECT roles.id ,roles.title,roles.department_id,department.id,department.depatrmentName
+        FROM roles INNER JOIN department
+        ON roles.department_id = department.id;
+         `, (err, data) => {
             if (err) {
                 reject(err);
             } else {
@@ -113,17 +167,6 @@ const readRoles = () => {
     });
 };
 
-
-const confirmAnswer = async (input) => {
-
-    if (input !== "Manager") {
-        return true;
-    } else {
-
-        return console.log("Manager alredy exists in the department");
-    }
-
-};
 
 
 
