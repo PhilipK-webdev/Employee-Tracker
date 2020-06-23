@@ -1,7 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const { add, departmentName, addDepartment, roles, joinRolesDepartment, addRole, checkRoleExists } = require("./add.js");
+const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles } = require("./add.js");
 
 
 const mainMenu = async () => {
@@ -35,21 +35,78 @@ const mainMenu = async () => {
 
                             case "roles":
                                 roles().then(roleNameToDepartment => {
+                                    const nameDepartment = roleNameToDepartment;
+                                    checkDepartment(nameDepartment).then(resId => {
 
-                                    joinRolesDepartment().then(async res => {
+                                        const fromDepartment = resId;
+                                        checkDepartmentAndRoles().then(res => {
 
-                                        const map = res.map(element => {
 
-                                            return {
-                                                id: element.id,
-                                                title: element.title,
-                                                name: element.depatrmentName
-                                            };
+                                            let map = res.map(element => {
+                                                if (roleNameToDepartment === element.depatrmentName) {
+                                                    return {
+
+                                                        department_id: element.department_id,
+                                                        depatrmentName: element.depatrmentName,
+                                                        title: element.title
+                                                    };
+                                                }
+                                            });
+
+                                            console.log(map);
+                                            map = map.filter(function (e) { return e });
+                                            console.log(map);
+                                            const temp = map.filter((name) => {
+                                                return name.title === "Manager";
+                                            });
+                                            console.log(temp);
                                         });
 
-                                        console.log(map);
-                                        const roleName = roleNameToDepartment;
-                                        // checkRoleExists(map, roleName).then(res => console.log(res));
+
+
+
+
+                                        // console.log(temp);
+
+                                        // if (temp[0].title === "Manager") {
+
+                                        //     checkRoleExists(map, roleName).then(resObj => {
+
+                                        //         addRole(resObj).then(res => console.log(res));
+
+                                        //     });
+                                        // }
+
+                                        // let temp = false;
+
+                                        // for (let i = 0; i < map.length; i++) {
+
+                                        //     if (map[i].title === "Manager" && map[i].depatrmentName === roleNameToDepartment) {
+
+                                        //         console.log("Yess");
+                                        //         temp = false;
+                                        //         const roleName = roleNameToDepartment;
+                                        //     } else {
+
+                                        //         temp = true;
+                                        //         const roleName = roleNameToDepartment;
+                                        //     }
+                                        // }
+
+                                        // if (temp) {
+
+
+                                        //     checkRoleExists(map, roleName).then(resObj => {
+
+                                        //         addRole(resObj).then(res => console.log(res));
+
+                                        //     });
+                                        // }
+
+
+
+                                        // console.log(map);
+
                                     });
 
                                 });

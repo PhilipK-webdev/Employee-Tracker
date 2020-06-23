@@ -72,7 +72,7 @@ const roles = () => {
         inquirer.prompt([
             {
                 type: "list",
-                name: "departmentId",
+                name: "department",
                 message: "Which department you want to add the role?",
                 choices: [
                     "Sales",
@@ -84,7 +84,7 @@ const roles = () => {
             },
         ]).then(res => {
 
-            var result = res.departmentId;
+            const result = res.department;
             resolve(result);
         }).catch(err => reject(err));
 
@@ -92,57 +92,63 @@ const roles = () => {
 
 }
 
-const joinRolesDepartment = () => {
+const checkDepartment = (name) => {
     return new Promise((resolve, reject) => {
-        connection.query(`
-        SELECT roles.id ,roles.title,roles.department_id,department.id,department.depatrmentName
-        FROM roles INNER JOIN department
-        ON roles.department_id = department.id;
-         `, (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data);
-            }
+
+        connection.query("SELECT * FROM department WHERE ?", [{ depatrmentName: name }], (err, data) => {
+
+            err ? reject(err) : resolve(data);
         });
     });
 };
 
-const checkRoleExists = (objMap, name) => {
+
+
+const checkDepartmentAndRoles = (name) => {
     return new Promise((resolve, reject) => {
 
-        if (name === objMap[i].name && objMap[i].title === "Manager") {
+        connection.query(`
+        SELECT roles.id ,roles.title,roles.department_id,department.id,department.depatrmentName
+        FROM roles INNER JOIN department
+	ON roles.department_id = department.id;
+        `, (err, data) => {
 
-            console.log("Already has a manager");
-            inquirer.prompt([
+            err ? reject(err) : resolve(data);
+        });
 
-                {
-                    type: "input",
-                    name: "title",
-                    message: "What is the role in the company?",
-                },
-                {
-                    type: "input",
-                    name: "salary",
-                    message: "What is the salary?",
-                },
+    });
+};
 
-            ]).then(res => {
+const checkRoleExists = (map, name) => {
+    return new Promise((resolve, reject) => {
 
-                var x = parseInt(res.salary);
-                const ObjRole = {
+        inquirer.prompt([
 
-                    title: res.title,
-                    salary: x,
-                    department_id: map[i].id,
+            {
+                type: "input",
+                name: "title",
+                message: "What is the role in the company?",
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "What is the salary?",
+            },
 
-                };
+        ]).then(res => {
 
-                resolve(ObjRole);
-            }).catch(err => reject(err));
+            var x = parseInt(res.salary);
+            const ObjRole = {
 
+                title: res.title,
+                salary: x,
+                department_id: map[i].id,
 
-        }
+            };
+
+            resolve(ObjRole);
+        }).catch(err => reject(err));
+
     });
 
 }
@@ -157,7 +163,7 @@ const addRole = (obj) => {
 
 
 
-module.exports = { add, addDepartment, departmentName, roles, joinRolesDepartment, addRole, checkRoleExists };
+module.exports = { add, addDepartment, departmentName, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles };
 
 
 
@@ -192,3 +198,5 @@ module.exports = { add, addDepartment, departmentName, roles, joinRolesDepartmen
 //         resolve(ObjRole);
 
 //     }).catch(err => reject(err));
+
+
