@@ -1,7 +1,8 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const mainMenu = require("../view_company/main-menu.js");
+const mainMenu = require("./main-menu.js");
+
 
 
 const add = async () => {
@@ -11,78 +12,82 @@ const add = async () => {
 
 async function addCompany() {
 
-    await inquirer.prompt([{
+    return new Promise((resolve, reject) => {
+        inquirer.prompt([{
 
-        type: "list",
-        name: "add",
-        message: "Choice what to add:",
-        choices: [
-            "department",
-            "roles",
-            "employee",
-            "Exit"
-        ],
+            type: "list",
+            name: "add",
+            message: "Choice what to add:",
+            choices: [
+                "department",
+                "roles",
+                "employee",
+                "Exit"
+            ],
 
-    }]).then(res => {
+        }]).then(res => {
 
-        switch (res.add) {
+            resolve(res.add);
+            // switch (res.add) {
 
-            case "department":
-                departmentName();
-                break;
+            //     case "department":
+            //         departmentName();
+            //         break;
 
-            case "roles":
-                roles();
-                break;
+            //     case "roles":
+            //         roles();
+            //         break;
 
-            case "employee":
+            //     case "employee":
 
-                break;
+            //         break;
 
-            case "Exit":
-                connection.end();
-                process.exit();
-                break;
-            default:
-                break;
-        }
+            //     case "Exit":
+            //         connection.end();
+            //         process.exit();
+            //         break;
+            //     default:
+            //         break;
+            // }
 
-    }).catch(err => console.log(err));
+        }).catch(err => reject(err));
+    });
 }
 
 
-async function departmentName() {
+// async function departmentName() {
 
-    await inquirer.prompt([{
+//     await inquirer.prompt([{
 
-        type: "input",
-        name: "departmentName",
-        message: "What is the name of the new department?",
-
-
-    }]).then(res => {
-
-        let name = res.departmentName;
-        addDepartment(name);
-        addCompany();
-
-    });
-
-}
-
-const addDepartment = async (name) => {
-    return await new Promise((resolve, reject) => {
-        connection.query("INSERT INTO department SET ?", [{ depatrmentName: name }], (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve({ msg: "Successfully added!!!" });
-            }
-        });
-    });
-};
+//         type: "input",
+//         name: "departmentName",
+//         message: "What is the name of the new department?",
 
 
+//     }]).then(res => {
+
+//         let name = res.departmentName;
+//         addDepartment(name).then(res => {
+
+//             add();
+//         });
+
+
+//     });
+
+// }
+
+// const addDepartment = async (name) => {
+//     return await new Promise((resolve, reject) => {
+//         connection.query("INSERT INTO department SET ?", [{ depatrmentName: name }], (err) => {
+//             if (err) {
+//                 reject(err);
+//             } else {
+//                 resolve({ msg: "Successfully added!!!" });
+//             }
+//         });
+//     });
+// };
 
 
 
