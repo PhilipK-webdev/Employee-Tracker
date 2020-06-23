@@ -1,16 +1,17 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const mainMenu = require("./main-menu.js");
+const mainMenu = require("../view_company/main-menu.js");
 
-const add = () => {
 
-    addCompany();
+const add = async () => {
+
+    return await addCompany();
 }
 
-function addCompany() {
+async function addCompany() {
 
-    inquirer.prompt([{
+    await inquirer.prompt([{
 
         type: "list",
         name: "add",
@@ -19,12 +20,13 @@ function addCompany() {
             "department",
             "roles",
             "employee",
-            "Main Menu"
+            "Exit"
         ],
 
     }]).then(res => {
 
         switch (res.add) {
+
             case "department":
                 departmentName();
                 break;
@@ -34,11 +36,7 @@ function addCompany() {
                 break;
 
             case "employee":
-                searchMenu();
-                break;
 
-            case "Main Menu":
-                mainMenu().then(res => console.log(res));
                 break;
 
             case "Exit":
@@ -49,16 +47,13 @@ function addCompany() {
                 break;
         }
 
-    })
-
-
-
+    }).catch(err => console.log(err));
 }
 
 
-function departmentName() {
+async function departmentName() {
 
-    inquirer.prompt([{
+    await inquirer.prompt([{
 
         type: "input",
         name: "departmentName",
@@ -75,8 +70,8 @@ function departmentName() {
 
 }
 
-const addDepartment = (name) => {
-    return new Promise((resolve, reject) => {
+const addDepartment = async (name) => {
+    return await new Promise((resolve, reject) => {
         connection.query("INSERT INTO department SET ?", [{ depatrmentName: name }], (err) => {
             if (err) {
                 reject(err);
@@ -87,9 +82,26 @@ const addDepartment = (name) => {
     });
 };
 
-async function roles() {
 
-    await inquirer.prompt([
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function roles() {
+
+    inquirer.prompt([
         {
             type: "list",
             name: "departmentId",

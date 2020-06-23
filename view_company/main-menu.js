@@ -3,8 +3,10 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 const add = require("./add.js");
 
-const mainMenu = () => {
-    inquirer
+
+const mainMenu = async () => {
+
+    await inquirer
         .prompt([
             {
                 name: "mainMenu",
@@ -47,9 +49,9 @@ const mainMenu = () => {
 }
 
 
-function viewCompany() {
+async function viewCompany() {
 
-    inquirer.prompt([{
+    await inquirer.prompt([{
 
         type: "list",
         name: "view",
@@ -84,8 +86,5 @@ const readAllCompany = (result) => {
         });
     });
 };
-
-
-
 
 module.exports = mainMenu;
