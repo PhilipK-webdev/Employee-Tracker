@@ -1,7 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const { add, departmentName, addDepartment, } = require("./add.js");
+const { add, departmentName, addDepartment, roles, joinRolesDepartment, addRole, checkRoleExists } = require("./add.js");
 
 
 const mainMenu = async () => {
@@ -34,7 +34,25 @@ const mainMenu = async () => {
                                 break;
 
                             case "roles":
-                                roles();
+                                roles().then(roleNameToDepartment => {
+
+                                    joinRolesDepartment().then(async res => {
+
+                                        const map = res.map(element => {
+
+                                            return {
+                                                id: element.id,
+                                                title: element.title,
+                                                name: element.depatrmentName
+                                            };
+                                        });
+
+                                        console.log(map);
+                                        const roleName = roleNameToDepartment;
+                                        // checkRoleExists(map, roleName).then(res => console.log(res));
+                                    });
+
+                                });
                                 break;
 
                             case "employee":

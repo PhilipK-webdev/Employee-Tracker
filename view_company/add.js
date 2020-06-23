@@ -61,74 +61,34 @@ const addDepartment = async (name) => {
         });
     });
 };
-function roles() {
-
-    inquirer.prompt([
-        {
-            type: "list",
-            name: "departmentId",
-            message: "Which department you want to add the role?",
-            choices: [
-                "Sales",
-                "Developers",
-                "UI/UX",
-                "Product",
-                "QA"
-            ],
-        },
-    ]).then(res => {
-
-        var result = res.departmentId;
-        joinRolesDepartment().then(res => {
-
-            const map = res.map(element => {
-
-                return {
-                    id: element.id,
-                    title: element.title,
-                    name: element.depatrmentName
-                };
-            });
-
-            for (let i = 0; i < map.length; i++) {
-
-                if (result === map[i].name && map[i].title === "Manager") {
-
-                    console.log("Already has a manager");
-
-                    inquirer.prompt([
-
-                        {
-                            type: "input",
-                            name: "title",
-                            message: "What is the role in the company?",
-                        },
-                        {
-                            type: "input",
-                            name: "salary",
-                            message: "What is the salary?",
-                        },
-
-                    ]).then(res => {
 
 
-                        const ObjRole = {
-
-                            id: map[i].id,
-                            title: res.title,
-                            salary: res.salary
-                        };
-
-                        console.log(ObjRole);
-                        addCompany();
-
-                    });
 
 
-                }
-            }
-        }).catch(err => console.log(err));
-    })
+const roles = () => {
+
+    return new Promise((resolve, reject) => {
+
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "departmentId",
+                message: "Which department you want to add the role?",
+                choices: [
+                    "Sales",
+                    "Developers",
+                    "UI/UX",
+                    "Product",
+                    "QA"
+                ],
+            },
+        ]).then(res => {
+
+            var result = res.departmentId;
+            resolve(result);
+        }).catch(err => reject(err));
+
+    });
 
 }
 
@@ -148,8 +108,87 @@ const joinRolesDepartment = () => {
     });
 };
 
+const checkRoleExists = (objMap, name) => {
+    return new Promise((resolve, reject) => {
+
+        if (name === objMap[i].name && objMap[i].title === "Manager") {
+
+            console.log("Already has a manager");
+            inquirer.prompt([
+
+                {
+                    type: "input",
+                    name: "title",
+                    message: "What is the role in the company?",
+                },
+                {
+                    type: "input",
+                    name: "salary",
+                    message: "What is the salary?",
+                },
+
+            ]).then(res => {
+
+                var x = parseInt(res.salary);
+                const ObjRole = {
+
+                    title: res.title,
+                    salary: x,
+                    department_id: map[i].id,
+
+                };
+
+                resolve(ObjRole);
+            }).catch(err => reject(err));
+
+
+        }
+    });
+
+}
+
+const addRole = (obj) => {
+    return new Promise((resolve, reject) => {
+        connection.query("INSERT INTO roles SET ?", [{ title: obj.title, salary: obj.salary, department_id: obj.department_id }], (err, data) => {
+            err ? reject(err) : resolve({ msg: "Success" });
+        });
+    });
+}
+
+
+
+module.exports = { add, addDepartment, departmentName, roles, joinRolesDepartment, addRole, checkRoleExists };
 
 
 
 
-module.exports = { add, addDepartment, departmentName };
+
+
+// } else {
+
+//     inquirer.prompt([
+
+//         {
+//             type: "input",
+//             name: "title",
+//             message: "What is the role in the company?",
+//         },
+//         {
+//             type: "input",
+//             name: "salary",
+//             message: "What is the salary?",
+//         },
+
+//     ]).then(res => {
+
+//         var x = parseInt(res.salary);
+//         const ObjRole = {
+
+//             title: res.title,
+//             salary: x,
+//             department_id: map[i].id,
+
+//         };
+//         resolve(ObjRole);
+
+//     }).catch(err => reject(err));
