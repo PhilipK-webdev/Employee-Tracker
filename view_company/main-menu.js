@@ -1,7 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const add = require("./add.js");
+const { add, departmentName, addDepartment, } = require("./add.js");
 
 
 const mainMenu = async () => {
@@ -28,7 +28,9 @@ const mainMenu = async () => {
                         switch (res) {
 
                             case "department":
-                                departmentName();
+                                departmentName().then(name => {
+                                    addDepartment(name).then(res => console.log(res));
+                                });
                                 break;
 
                             case "roles":
@@ -37,6 +39,10 @@ const mainMenu = async () => {
 
                             case "employee":
 
+                                break;
+
+                            case "Main Menu":
+                                mainMenu();
                                 break;
 
                             case "Exit":
@@ -70,39 +76,7 @@ const mainMenu = async () => {
             }
         });
 }
-async function departmentName() {
 
-    await inquirer.prompt([{
-
-        type: "input",
-        name: "departmentName",
-        message: "What is the name of the new department?",
-
-
-    }]).then(res => {
-
-        let name = res.departmentName;
-        addDepartment(name).then(res => {
-
-            mainMenu();
-        });
-
-
-    });
-
-}
-
-const addDepartment = async (name) => {
-    return await new Promise((resolve, reject) => {
-        connection.query("INSERT INTO department SET ?", [{ depatrmentName: name }], (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve({ msg: "Successfully added!!!" });
-            }
-        });
-    });
-};
 
 async function viewCompany() {
 

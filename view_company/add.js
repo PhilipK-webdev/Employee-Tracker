@@ -1,10 +1,6 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const mainMenu = require("./main-menu.js");
-
-
-
 const add = async () => {
 
     return await addCompany();
@@ -22,88 +18,49 @@ async function addCompany() {
                 "department",
                 "roles",
                 "employee",
+                "Main Menu",
                 "Exit"
             ],
 
         }]).then(res => {
 
             resolve(res.add);
-            // switch (res.add) {
-
-            //     case "department":
-            //         departmentName();
-            //         break;
-
-            //     case "roles":
-            //         roles();
-            //         break;
-
-            //     case "employee":
-
-            //         break;
-
-            //     case "Exit":
-            //         connection.end();
-            //         process.exit();
-            //         break;
-            //     default:
-            //         break;
-            // }
-
         }).catch(err => reject(err));
     });
 }
+function departmentName() {
+
+    return new Promise((resolve, reject) => {
+
+        inquirer.prompt([{
+
+            type: "input",
+            name: "departmentName",
+            message: "What is the name of the new department?",
 
 
-// async function departmentName() {
+        }]).then(res => {
 
-//     await inquirer.prompt([{
-
-//         type: "input",
-//         name: "departmentName",
-//         message: "What is the name of the new department?",
+            resolve(res.departmentName);
 
 
-//     }]).then(res => {
+        }).catch(err => reject(err));
 
-//         let name = res.departmentName;
-//         addDepartment(name).then(res => {
+    });
 
-//             add();
-//         });
+}
 
-
-//     });
-
-// }
-
-// const addDepartment = async (name) => {
-//     return await new Promise((resolve, reject) => {
-//         connection.query("INSERT INTO department SET ?", [{ depatrmentName: name }], (err) => {
-//             if (err) {
-//                 reject(err);
-//             } else {
-//                 resolve({ msg: "Successfully added!!!" });
-//             }
-//         });
-//     });
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const addDepartment = async (name) => {
+    return await new Promise((resolve, reject) => {
+        connection.query("INSERT INTO department SET ?", [{ depatrmentName: name }], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve({ msg: "Successfully added!!!" });
+            }
+        });
+    });
+};
 function roles() {
 
     inquirer.prompt([
@@ -195,4 +152,4 @@ const joinRolesDepartment = () => {
 
 
 
-module.exports = add;
+module.exports = { add, addDepartment, departmentName };
