@@ -197,7 +197,20 @@ const addRole = (obj) => {
 }
 
 
-const addEmployee = () => {
+const checkdOfRolesAndDep = (name) => {
+
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT roles.title,department.depatrmentName,roles.department_id,roles.id
+        FROM roles INNER JOIN department
+        ON roles.department_id = department.id
+        WHERE ?`, [{ depatrmentName: name }], (err, data) => {
+            err ? reject(err) : resolve(data);
+        });
+    });
+
+}
+
+const createEmployee = () => {
 
     return new Promise((resolve, reject) => {
 
@@ -205,19 +218,44 @@ const addEmployee = () => {
 
             {
                 type: "input",
-                name: "firstName",
-                message: "First Name",
+                name: "nameDepartment",
+                message: "Which department you want to add the new employee?",
 
+            },
+        ]).then(answer => {
+
+            resolve(answer);
+        }).catch(err => reject(err));
+    }).catch(err => console.log({ err: err }));
+
+}
+
+
+const addEmployee = (id) => {
+
+    return new Promise((resolve, reject) => {
+        inquirer.prompt([
+
+            {
+                type: "input",
+                name: "firstName",
+                message: "Employee first name",
             },
             {
                 type: "input",
                 name: "lastName",
-                message: "Last Name",
-
+                message: "Employee last name",
             },
+        ]).then(resFirstLast => {
 
-        ]);
+            connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id }],
+                (err, data) => {
 
+                    err ? reject(err) : resolve({ msg: "Success" });
+                });
+
+
+        });
     });
 
 }
@@ -237,40 +275,12 @@ const confirmAnswer = async (input) => {
 
 
 
-module.exports = { add, addDepartment, departmentName, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles, checkRoleManager };
+module.exports = {
 
+    add, addDepartment, departmentName, roles,
+    checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles,
+    checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee
+};
 
-
-
-
-
-// } else {
-
-//     inquirer.prompt([
-
-//         {
-//             type: "input",
-//             name: "title",
-//             message: "What is the role in the company?",
-//         },
-//         {
-//             type: "input",
-//             name: "salary",
-//             message: "What is the salary?",
-//         },
-
-//     ]).then(res => {
-
-//         var x = parseInt(res.salary);
-//         const ObjRole = {
-
-//             title: res.title,
-//             salary: x,
-//             department_id: map[i].id,
-
-//         };
-//         resolve(ObjRole);
-
-//     }).catch(err => reject(err));
 
 

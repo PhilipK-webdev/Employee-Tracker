@@ -1,7 +1,10 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles, checkRoleManager } = require("./add.js");
+const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists,
+    checkDepartmentAndRoles, checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee
+
+} = require("./add.js");
 
 
 const mainMenu = async () => {
@@ -86,6 +89,23 @@ const mainMenu = async () => {
                                 break;
 
                             case "employee":
+                                createEmployee().then(responseNameDep => {
+                                    checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
+                                        const table = cTable.getTable(response);
+                                        console.log(table);
+                                        inquirer.prompt({
+
+                                            type: "input",
+                                            name: "idUser",
+                                            message: "choice wich role you want your employee\n select the id colum",
+                                        }).then(id => {
+                                            const parseId = parseInt(id.idUser);
+                                            console.log(parseId);
+                                            addEmployee(parseId).then(res => console.log(res));
+                                        })
+
+                                    });
+                                });
 
                                 break;
 
