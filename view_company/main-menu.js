@@ -2,7 +2,8 @@ const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
 const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists,
-    checkDepartmentAndRoles, checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee
+    checkDepartmentAndRoles, checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee,
+    checkIfManger, addEmployeeWithManager
 
 } = require("./add.js");
 
@@ -90,21 +91,56 @@ const mainMenu = async () => {
 
                             case "employee":
                                 createEmployee().then(responseNameDep => {
-                                    checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
-                                        const table = cTable.getTable(response);
-                                        console.log(table);
-                                        inquirer.prompt({
+                                    console.log(responseNameDep);
 
-                                            type: "input",
-                                            name: "idUser",
-                                            message: "choice wich role you want your employee\n select the id colum",
-                                        }).then(id => {
-                                            const parseId = parseInt(id.idUser);
-                                            console.log(parseId);
-                                            addEmployee(parseId).then(res => console.log(res));
-                                        })
+                                    if (responseNameDep.ansConfirm) {
 
-                                    });
+                                        checkIfManger(responseNameDep.nameDepartment).then(res => {
+                                            const table = cTable.getTable(res);
+                                            console.log(table);
+                                            console.log(res[0].id);
+                                            let managerId = parseInt(res[0].id);
+                                            console.log(managerId);
+                                            checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
+                                                const table = cTable.getTable(response);
+                                                console.log(table);
+                                                inquirer.prompt({
+
+                                                    type: "input",
+                                                    name: "idUser",
+                                                    message: "choice wich role you want your employee\n select the id colum",
+                                                }).then(id => {
+                                                    const parseId = parseInt(id.idUser);
+                                                    console.log(parseId);
+                                                    addEmployeeWithManager(parseId, managerId).then(() => mainMenu());
+                                                })
+
+                                            });
+
+                                        });
+
+                                    } else {
+
+                                        checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
+                                            const table = cTable.getTable(response);
+                                            console.log(table);
+                                            inquirer.prompt({
+
+                                                type: "input",
+                                                name: "idUser",
+                                                message: "choice wich role you want your employee\n select the id colum",
+                                            }).then(id => {
+                                                const parseId = parseInt(id.idUser);
+                                                console.log(parseId);
+                                                addEmployee(parseId).then(() => mainMenu());
+                                            })
+
+                                        });
+
+                                    }
+
+
+
                                 });
 
                                 break;

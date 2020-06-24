@@ -197,6 +197,32 @@ const addRole = (obj) => {
 }
 
 
+
+
+const createEmployee = () => {
+    return new Promise((resolve, reject) => {
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "nameDepartment",
+                message: "Which department you want to add the new employee?",
+
+            },
+
+            {
+                type: "confirm",
+                name: "ansConfirm",
+                message: "Does your employee has Manager",
+                default: false,
+            },
+        ]).then(answer => {
+
+            resolve(answer);
+        }).catch(err => reject(err));
+    }).catch(err => console.log({ err: err }));
+
+}
+
 const checkdOfRolesAndDep = (name) => {
 
     return new Promise((resolve, reject) => {
@@ -207,29 +233,21 @@ const checkdOfRolesAndDep = (name) => {
             err ? reject(err) : resolve(data);
         });
     });
-
 }
 
-const createEmployee = () => {
+const checkIfManger = (name) => {
 
     return new Promise((resolve, reject) => {
-
-        inquirer.prompt([
-
-            {
-                type: "input",
-                name: "nameDepartment",
-                message: "Which department you want to add the new employee?",
-
-            },
-        ]).then(answer => {
-
-            resolve(answer);
-        }).catch(err => reject(err));
-    }).catch(err => console.log({ err: err }));
-
+        connection.query(`SELECT employee.first_name,roles.department_id,roles.title,employee.id
+        FROM employee INNER JOIN roles
+        ON employee.role_id = roles.id
+        INNER JOIN department
+        ON department.id = roles.department_id
+        WHERE ? AND ?`, [{ title: "Manager" }, { depatrmentName: name }], (err, data) => {
+            err ? reject(err) : resolve(data);
+        });
+    });
 }
-
 
 const addEmployee = (id) => {
 
@@ -257,7 +275,34 @@ const addEmployee = (id) => {
 
         });
     });
+}
 
+const addEmployeeWithManager = (id, managerId) => {
+
+    return new Promise((resolve, reject) => {
+        inquirer.prompt([
+
+            {
+                type: "input",
+                name: "firstName",
+                message: "Employee first name",
+            },
+            {
+                type: "input",
+                name: "lastName",
+                message: "Employee last name",
+            },
+        ]).then(resFirstLast => {
+
+            connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id, manager_id: managerId }],
+                (err, data) => {
+
+                    err ? reject(err) : resolve({ msg: "Success" });
+                });
+
+
+        });
+    });
 }
 
 
@@ -279,8 +324,11 @@ module.exports = {
 
     add, addDepartment, departmentName, roles,
     checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles,
-    checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee
+    checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee,
+    checkIfManger, addEmployeeWithManager
 };
+
+
 
 
 
