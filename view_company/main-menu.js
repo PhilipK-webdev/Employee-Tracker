@@ -1,7 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles } = require("./add.js");
+const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles, checkRoleManager } = require("./add.js");
 
 
 const mainMenu = async () => {
@@ -37,11 +37,8 @@ const mainMenu = async () => {
                                 roles().then(roleNameToDepartment => {
                                     const nameDepartment = roleNameToDepartment;
                                     checkDepartment(nameDepartment).then(resId => {
-
-                                        const fromDepartment = resId;
+                                        const fromDepartmentObj = resId;
                                         checkDepartmentAndRoles().then(res => {
-
-
                                             let map = res.map(element => {
                                                 if (roleNameToDepartment === element.depatrmentName) {
                                                     return {
@@ -53,60 +50,36 @@ const mainMenu = async () => {
                                                 }
                                             });
 
-                                            console.log(map);
                                             map = map.filter(function (e) { return e });
-                                            console.log(map);
                                             const temp = map.filter((name) => {
                                                 return name.title === "Manager";
                                             });
+                                            console.log(fromDepartmentObj);
                                             console.log(temp);
+                                            if (temp.length === 0) {
+                                                console.log("In this Department No Manager Yet");
+                                                checkRoleExists(fromDepartmentObj).then(createRole => {
+
+                                                    addRole(createRole).then(res => {
+                                                        console.log(res)
+                                                        mainMenu();
+                                                    });
+                                                });
+                                            } else if (temp[0].title === "Manager") {
+
+                                                console.log("Manager Exists");
+                                                checkRoleManager(fromDepartmentObj).then(createRole => {
+
+                                                    addRole(createRole).then(res => {
+                                                        console.log(res)
+                                                        mainMenu();
+                                                    });
+                                                });
+                                            } else {
+
+                                                console.log("Success");
+                                            }
                                         });
-
-
-
-
-
-                                        // console.log(temp);
-
-                                        // if (temp[0].title === "Manager") {
-
-                                        //     checkRoleExists(map, roleName).then(resObj => {
-
-                                        //         addRole(resObj).then(res => console.log(res));
-
-                                        //     });
-                                        // }
-
-                                        // let temp = false;
-
-                                        // for (let i = 0; i < map.length; i++) {
-
-                                        //     if (map[i].title === "Manager" && map[i].depatrmentName === roleNameToDepartment) {
-
-                                        //         console.log("Yess");
-                                        //         temp = false;
-                                        //         const roleName = roleNameToDepartment;
-                                        //     } else {
-
-                                        //         temp = true;
-                                        //         const roleName = roleNameToDepartment;
-                                        //     }
-                                        // }
-
-                                        // if (temp) {
-
-
-                                        //     checkRoleExists(map, roleName).then(resObj => {
-
-                                        //         addRole(resObj).then(res => console.log(res));
-
-                                        //     });
-                                        // }
-
-
-
-                                        // console.log(map);
-
                                     });
 
                                 });
@@ -192,3 +165,13 @@ const readAllCompany = (result) => {
 };
 
 module.exports = mainMenu;
+
+
+// checkRoleExists(fromDepartmentObj).then(createRole => {
+
+//     addRole(createRole).then(res => {
+
+//         console.log(res)
+//         mainMenu();
+//     });
+// });

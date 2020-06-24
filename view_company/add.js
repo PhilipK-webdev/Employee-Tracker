@@ -62,9 +62,6 @@ const addDepartment = async (name) => {
     });
 };
 
-
-
-
 const roles = () => {
 
     return new Promise((resolve, reject) => {
@@ -79,7 +76,6 @@ const roles = () => {
                     "Developers",
                     "UI/UX",
                     "Product",
-                    "QA"
                 ],
             },
         ]).then(res => {
@@ -104,7 +100,7 @@ const checkDepartment = (name) => {
 
 
 
-const checkDepartmentAndRoles = (name) => {
+const checkDepartmentAndRoles = () => {
     return new Promise((resolve, reject) => {
 
         connection.query(`
@@ -119,20 +115,23 @@ const checkDepartmentAndRoles = (name) => {
     });
 };
 
-const checkRoleExists = (map, name) => {
+const checkRoleExists = (obj) => {
     return new Promise((resolve, reject) => {
+
 
         inquirer.prompt([
 
             {
                 type: "input",
-                name: "title",
+                name: "titleRole",
                 message: "What is the role in the company?",
+
             },
             {
                 type: "input",
                 name: "salary",
                 message: "What is the salary?",
+
             },
 
         ]).then(res => {
@@ -140,9 +139,45 @@ const checkRoleExists = (map, name) => {
             var x = parseInt(res.salary);
             const ObjRole = {
 
-                title: res.title,
+                title: res.titleRole,
                 salary: x,
-                department_id: map[i].id,
+                department_id: obj[0].id,
+
+            };
+
+            resolve(ObjRole);
+        }).catch(err => reject(err));
+
+    });
+
+}
+
+const checkRoleManager = (obj) => {
+    return new Promise((resolve, reject) => {
+        inquirer.prompt([
+
+            {
+                type: "input",
+                name: "titleRole",
+                message: "What is the role in the company?",
+                validate: confirmAnswer
+
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "What is the salary?",
+
+            },
+
+        ]).then(res => {
+
+            var x = parseInt(res.salary);
+            const ObjRole = {
+
+                title: res.titleRole,
+                salary: x,
+                department_id: obj[0].id,
 
             };
 
@@ -162,8 +197,47 @@ const addRole = (obj) => {
 }
 
 
+const addEmployee = () => {
 
-module.exports = { add, addDepartment, departmentName, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles };
+    return new Promise((resolve, reject) => {
+
+        inquirer.prompt([
+
+            {
+                type: "input",
+                name: "firstName",
+                message: "First Name",
+
+            },
+            {
+                type: "input",
+                name: "lastName",
+                message: "Last Name",
+
+            },
+
+        ]);
+
+    });
+
+}
+
+
+const confirmAnswer = async (input) => {
+
+
+    if (input === "Manager") {
+
+        return "Wrong input, Try again, Manager already exists in this department";
+    } else {
+        return true;
+    }
+
+};
+
+
+
+module.exports = { add, addDepartment, departmentName, roles, checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles, checkRoleManager };
 
 
 
