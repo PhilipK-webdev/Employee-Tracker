@@ -191,11 +191,8 @@ const mainMenu = async () => {
 
                             case "Roles":
                                 joinRoles().then(rolesObj => {
-
                                     console.log(rolesObj);
-
                                     inquirer.prompt({
-
                                         type: "list",
                                         name: "id",
                                         message: "Choice from what department you want to update the roles:",
@@ -214,7 +211,6 @@ const mainMenu = async () => {
                                         });
                                         let result = filterObj.map(a => a.id);
                                         inquirer.prompt({
-
                                             type: "list",
                                             name: "updateID",
                                             message: "Choise ID for update",
