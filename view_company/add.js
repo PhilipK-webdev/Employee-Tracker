@@ -117,8 +117,6 @@ const checkDepartmentAndRoles = () => {
 
 const checkRoleExists = (obj) => {
     return new Promise((resolve, reject) => {
-
-
         inquirer.prompt([
 
             {

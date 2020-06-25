@@ -7,7 +7,7 @@ const { add, departmentName, addDepartment, roles, checkDepartment, addRole, che
 
 } = require("./add.js");
 
-const { update, joinDepartment, selectDepartment, updateSelectedDepartment } = require("./update.js");
+const { update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole } = require("./update.js");
 
 
 
@@ -173,16 +173,77 @@ const mainMenu = async () => {
                                         const singleDepUpdate = arrDepartment.filter(department => {
                                             return department.depatrmentName === selected;
                                         });
-                                        updateSelectedDepartment(singleDepUpdate).then(res => {
-                                            console.log(res);
-                                            mainMenu();
+                                        inquirer.prompt({
+
+                                            type: "input",
+                                            name: "newName",
+                                            message: "What is the new name of the department?"
+                                        }).then(resName => {
+                                            parseInt(singleDepUpdate[0].id);
+                                            updateSelectedDepartment(singleDepUpdate[0].id, resName.newName).then(res => {
+                                                console.log(res);
+                                                mainMenu();
+                                            });
                                         });
                                     });
                                 })
                                 break;
 
                             case "Roles":
-                                searchMenu();
+                                joinRoles().then(rolesObj => {
+
+                                    console.log(rolesObj);
+
+                                    inquirer.prompt({
+
+                                        type: "list",
+                                        name: "id",
+                                        message: "Choice from what department you want to update the roles:",
+                                        choices: [
+                                            "1-Sales",
+                                            "2-Developers",
+                                            "3-UI/UX",
+                                            "4-Product",
+                                        ],
+                                    }).then(res => {
+                                        const idDepartment = res.id;
+                                        console.log(rolesObj);
+                                        let matches = parseInt(idDepartment.match(/(\d+)/)[0]);
+                                        const filterObj = rolesObj.filter(role => {
+                                            return role.department_id === matches;
+                                        });
+                                        let result = filterObj.map(a => a.id);
+                                        inquirer.prompt({
+
+                                            type: "list",
+                                            name: "updateID",
+                                            message: "Choise ID for update",
+                                            choices: [
+                                                `${result[0]}`,
+                                                `${result[1]}`,
+                                                `${result[2]}`,
+                                            ]
+                                        }).then(res => {
+                                            const resId = parseInt(res.updateID);
+                                            let objFilterID = filterObj.map(oneObj => {
+                                                if (oneObj.id === resId) {
+
+                                                    return oneObj;
+                                                }
+                                            });
+                                            objFilterID = objFilterID.filter(function (e) { return e });
+                                            console.log(objFilterID);
+                                            const finalIdtoUpdate = objFilterID[0].id;
+                                            createRole(objFilterID[0].department_id).then(resObj => {
+
+                                                updateSelectedRoles(resObj, finalIdtoUpdate).then(() => mainMenu());
+                                            });
+
+                                        });
+
+                                    });
+
+                                });
                                 break;
 
                             case "Employee":
