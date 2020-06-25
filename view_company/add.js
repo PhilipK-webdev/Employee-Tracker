@@ -62,20 +62,36 @@ const addDepartment = async (name) => {
     });
 };
 
+const queryAllDepartment = () => {
+    return new Promise((resolve, reject) => {
+        connection.query("SELECT * FROM department", (err, data) => {
+            err ? reject(err) : resolve(data);
+        });
+    });
+}
+
 const roles = () => {
 
-    return new Promise((resolve, reject) => {
+    queryAllDepartment().then(res => {
 
+        const queryAll = [];
+
+        for (let i = 0; i < res.length; i++) {
+
+            queryAll.push(res[i].depatrmentName);
+
+        }
+        console.log(queryAll);
+    });
+
+    return new Promise((resolve, reject) => {
         inquirer.prompt([
             {
                 type: "list",
                 name: "department",
                 message: "Which department you want to add the role?",
                 choices: [
-                    "Sales",
-                    "Developers",
-                    "UI/UX",
-                    "Product",
+                    `${queryAll[0]}`
                 ],
             },
         ]).then(res => {
@@ -323,7 +339,7 @@ module.exports = {
     add, addDepartment, departmentName, roles,
     checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles,
     checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee,
-    checkIfManger, addEmployeeWithManager
+    checkIfManger, addEmployeeWithManager, queryAllDepartment
 };
 
 
