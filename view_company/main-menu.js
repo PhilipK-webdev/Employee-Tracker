@@ -7,6 +7,9 @@ const { add, departmentName, addDepartment, roles, checkDepartment, addRole, che
 
 } = require("./add.js");
 
+const { update, joinDepartment, selectDepartment, updateSelectedDepartment } = require("./update.js");
+
+
 
 const mainMenu = async () => {
 
@@ -160,7 +163,42 @@ const mainMenu = async () => {
                     break;
 
                 case "Update":
-                    searchMenu();
+                    update().then((res) => {
+                        const resToUpdate = res;
+
+                        switch (resToUpdate) {
+                            case "Department":
+                                selectDepartment().then(selected => {
+                                    joinDepartment().then(arrDepartment => {
+                                        const singleDepUpdate = arrDepartment.filter(department => {
+                                            return department.depatrmentName === selected;
+                                        });
+                                        updateSelectedDepartment(singleDepUpdate).then(res => {
+                                            console.log(res);
+                                            mainMenu();
+                                        });
+                                    });
+                                })
+                                break;
+
+                            case "Roles":
+                                searchMenu();
+                                break;
+
+                            case "Employee":
+                                searchMenu();
+                                break;
+                            case "Exit":
+                                connection.end();
+                                process.exit();
+                                break;
+                            default:
+                                break;
+
+                        }
+
+
+                    });
                     break;
 
                 case "Delete":
@@ -223,11 +261,4 @@ const readAllCompany = (result) => {
 module.exports = mainMenu;
 
 
-// checkRoleExists(fromDepartmentObj).then(createRole => {
 
-//     addRole(createRole).then(res => {
-
-//         console.log(res)
-//         mainMenu();
-//     });
-// });
