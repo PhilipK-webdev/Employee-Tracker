@@ -1,7 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-
+const add = require("./add.js");
 const update = () => {
     return new Promise((resolve, reject) => {
         inquirer.prompt([{
@@ -23,26 +23,22 @@ const update = () => {
 
 const selectDepartment = () => {
     return new Promise((resolve, reject) => {
-        inquirer.prompt([{
-
-            type: "list",
-            name: "select",
-            message: "Choice what to department to update:",
-            choices: [
-                "Sales",
-                "Developers",
-                "UI/UX",
-                "Product",
-                "Exit"
-            ],
-        }]).then(res => {
-
-            resolve(res.select);
-        }).catch(err => reject(err));
-    });
-
+        add.queryAllDepartment().then(arrAllDepartments => {
+            const queryAll = [];
+            for (let i = 0; i < arrAllDepartments.length; i++) {
+                queryAll.push(arrAllDepartments[i].depatrmentName);
+            }
+            inquirer.prompt([{
+                type: "list",
+                name: "select",
+                message: "Choice what to department to update:",
+                choices: queryAll,
+            }]).then(res => {
+                resolve(res.select);
+            }).catch(err => reject(err));
+        });
+    })
 }
-
 
 const joinDepartment = () => {
     return new Promise((resolve, reject) => {
@@ -59,7 +55,6 @@ const updateSelectedDepartment = (id, newName) => {
         });
     });
 }
-
 
 const joinRoles = () => {
     return new Promise((resolve, reject) => {
@@ -111,9 +106,7 @@ const createRole = (id) => {
 }
 
 const selectFromRolesToGetId = () => {
-
     return new Promise((resolve, reject) => {
-
         connection.query("SELECT id,department_id,title FROM roles", (err, data) => {
             err ? reject(err) : resolve(data);
         });

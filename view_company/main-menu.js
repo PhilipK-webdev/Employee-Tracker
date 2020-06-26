@@ -12,6 +12,7 @@ const { update, joinDepartment, selectDepartment, updateSelectedDepartment, join
 } = require("./update.js");
 
 const { chooseToDelete, queryCompany, deleteFromCompany } = require("./delete.js");
+const salary = require("./total.js");
 
 const mainMenu = async () => {
 
@@ -21,27 +22,30 @@ const mainMenu = async () => {
                 name: "mainMenu",
                 message: "Where would you like to go?",
                 type: "list",
-                choices: ["View all Company", "Add", "Update", "Delete", "Total Salary", "Exit"],
+                choices: ["Company By Single", "View all Company", "Add", "Update", "Delete", "Total Salary", "Exit"],
             },
         ])
         .then(async (res) => {
             switch (res.mainMenu) {
-
-                case "View all Company":
+                case "Company By Single":
                     viewCompany();
                     break;
+                case "View all Company":
+                    viewAllJoinDepRolEmp().then(joinObj => {
 
+                        const joinTable = cTable.getTable(joinObj);
+                        console.log(joinTable);
+                        mainMenu();
+                    });
+                    break;
                 case "Add":
                     await add().then(res => {
-
                         switch (res) {
-
                             case "department":
                                 departmentName().then(name => {
                                     addDepartment(name).then(() => mainMenu());
                                 });
                                 break;
-
                             case "roles":
                                 roles().then(roleNameToDepartment => {
                                     const nameDepartment = roleNameToDepartment;
@@ -327,7 +331,6 @@ const mainMenu = async () => {
                         }
                     });
                     break;
-
                 case "Delete":
                     chooseToDelete().then(choice => {
                         console.log(choice);
@@ -338,9 +341,25 @@ const mainMenu = async () => {
                         });
                     });
                     break;
-
                 case "Total Salary":
-                    searchMenu();
+                    salary().then(allRolesWithSalary => {
+                        let objSalary = [];
+                        let totalSalaryCompany = 0;
+                        for (let i = 0; i < allRolesWithSalary.length; i++) {
+
+                            if (typeof allRolesWithSalary[i].salary === "number") {
+
+                                objSalary.push(allRolesWithSalary[i].salary);
+                            }
+                        }
+
+                        for (let i = 0; i < objSalary.length; i++) {
+
+                            totalSalaryCompany += objSalary[i];
+                        }
+                        console.log(totalSalaryCompany);
+                        mainMenu();
+                    });
                     break;
 
                 case "Exit":
@@ -355,7 +374,6 @@ const mainMenu = async () => {
 
 
 async function viewCompany() {
-
     await inquirer.prompt([{
 
         type: "list",
@@ -366,9 +384,7 @@ async function viewCompany() {
             "roles",
             "employee"
         ],
-
     }]).then(res => {
-
         let result = res.view;
         console.log(result);
         readAllCompany(result).then((res) => {
@@ -391,6 +407,23 @@ const readAllCompany = (result) => {
         });
     });
 };
+
+
+const viewAllJoinDepRolEmp = () => {
+
+    return new Promise((resolve, reject) => {
+
+        connection.query(`SELECT employee.id,employee.first_name,employee.last_name,roles.title,department.depatrmentName,roles.salary,employee.role_id,employee.manager_id
+        FROM roles INNER JOIN employee
+        ON employee.role_id = roles.id
+        INNER JOIN department
+        ON department.id = roles.department_id;
+        `, (err, data) => {
+
+            err ? reject(err) : resolve(data);
+        })
+    })
+}
 
 module.exports = mainMenu;
 
