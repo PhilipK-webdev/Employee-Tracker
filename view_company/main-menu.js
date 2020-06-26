@@ -102,80 +102,70 @@ const mainMenu = async () => {
 
                             case "employee":
                                 createEmployee().then(responseNameDep => {
-                                    console.log(responseNameDep);
-                                    checkIfManger(responseNameDep).then(res => {
-                                        const table = cTable.getTable(res);
-                                        console.log(table);
-                                        console.log(res);
-                                        if (res.length === 0) {
-                                            console.log("No Employee that is Manager in the company");
-                                            checkdOfRolesAndDep(responseNameDep).then(response => {
+                                    checkIfManger().then(responseIsManagerExits => {
+                                        const manager = responseIsManagerExits;
+                                        checkdOfRolesAndDep(responseNameDep).then(response => {
+                                            const table = cTable.getTable(response);
+                                            console.log(table);
+                                            let arrOfTitle = [];
+                                            for (let i = 0; i < response.length; i++) {
 
-                                                const table = cTable.getTable(response);
-                                                console.log(table);
+                                                arrOfTitle.push(response[i].title);
+                                            }
+                                            let unique = [...new Set(arrOfTitle)];
+                                            inquirer.prompt({
 
-                                                let arrOfTitle = [];
-                                                for (let i = 0; i < response.length; i++) {
-
-                                                    arrOfTitle.push(response[i].title);
-                                                }
-                                                let unique = [...new Set(arrOfTitle)];
-                                                inquirer.prompt({
-
-                                                    type: "list",
-                                                    name: "userRole",
-                                                    message: "What role you want your Employee to be?",
-                                                    choices: unique
-                                                }).then(title => {
-                                                    console.log(title.userRole);
-                                                    const temp = response.filter((name) => {
-                                                        return name.title === title.userRole;
-                                                    });
-                                                    console.log(temp);
-                                                    console.log(title.userRole);
-                                                    addEmployee(temp).then(() => mainMenu());
-
-                                                })
-
+                                                type: "list",
+                                                name: "userRole",
+                                                message: "What role you want your Employee to be?",
+                                                choices: unique
+                                            }).then(title => {
+                                                const temp = response.filter((name) => {
+                                                    return name.title === title.userRole;
+                                                });
+                                                console.log(temp);
+                                                console.log(title.userRole);
+                                                console.log(manager, "Obj of manager-back from checkIfManager func");
+                                                addEmployee(temp).then(() => mainMenu());
                                             });
 
-                                        }
+
+
+
+
+                                        });
+
+
+
+
                                     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                    // if (responseNameDep.ansConfirm) {
-                                    //     
-
-                                    // } else {
-
-                                    //     checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
-                                    //         const table = cTable.getTable(response);
-                                    //         console.log(table);
-                                    //         inquirer.prompt({
-
-                                    //             type: "input",
-                                    //             name: "idUser",
-                                    //             message: "choice wich role you want your employee\n select the id colum",
-                                    //         }).then(id => {
-                                    //             const parseId = parseInt(id.idUser);
-                                    //             console.log(parseId);
-                                    //             addEmployee(parseId).then(() => mainMenu());
-                                    //         })
-                                    //     });
-                                    // }
                                 });
+
+
+
+
+                                // if (responseNameDep.ansConfirm) {
+                                //     
+
+                                // } else {
+
+                                //     checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
+                                //         const table = cTable.getTable(response);
+                                //         console.log(table);
+                                //         inquirer.prompt({
+
+                                //             type: "input",
+                                //             name: "idUser",
+                                //             message: "choice wich role you want your employee\n select the id colum",
+                                //         }).then(id => {
+                                //             const parseId = parseInt(id.idUser);
+                                //             console.log(parseId);
+                                //             addEmployee(parseId).then(() => mainMenu());
+                                //         })
+                                //     });
+                                // }
+
+
                                 break;
                             case "Main Menu":
                                 mainMenu();
@@ -432,11 +422,12 @@ const readAllCompany = (result) => {
 
 const viewAllJoinDepRolEmp = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT employee.first_name,employee.last_name,roles.title,department.depatrmentName,roles.salary,employee.role_id,employee.manager_id
-        FROM roles INNER JOIN employee
-        ON employee.role_id = roles.id
-        INNER JOIN department
-        ON department.id = roles.department_id;
+        connection.query(`
+        SELECT employee.first_name,employee.last_name,roles.title,department.depatrmentName,roles.salary
+        FROM department RIGHT JOIN employee
+        ON department.id = employee.role_id
+        LEFT JOIN roles
+        ON  roles.id= employee.role_id;
         `, (err, data) => {
 
             err ? reject(err) : resolve(data);

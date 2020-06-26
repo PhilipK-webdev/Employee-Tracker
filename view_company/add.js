@@ -181,14 +181,12 @@ const checkdOfRolesAndDep = (name) => {
     });
 }
 
-const checkIfManger = (name) => {
+const checkIfManger = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT employee.first_name, roles.department_id, roles.title, employee.id
-        FROM employee INNER JOIN roles
-        ON employee.role_id = roles.id
-        INNER JOIN department
-        ON department.id = roles.department_id
-        WHERE title="Manager" AND ? `, [{ depatrmentName: name }], (err, data) => {
+        connection.query(`SELECT roles.title,department.depatrmentName,roles.department_id,roles.id
+        FROM roles INNER JOIN department
+        ON roles.department_id = department.id
+        WHERE roles.title = "Manager"; `, (err, data) => {
             err ? reject(err) : resolve(data);
         });
     });
