@@ -110,6 +110,67 @@ const createRole = (id) => {
 
 }
 
+const selectFromRolesToGetId = () => {
+
+    return new Promise((resolve, reject) => {
+
+        connection.query("SELECT id,department_id,title FROM roles", (err, data) => {
+            err ? reject(err) : resolve(data);
+        });
+    });
+}
+
+const makeEmployee = () => {
+    return new Promise((resolve, reject) => {
+        inquirer.prompt([
+            {
+
+                type: "input",
+                name: "firstName",
+                message: "First Name"
+            },
+            {
+
+                type: "input",
+                name: "lastName",
+                message: "Last Name"
+            },
+        ]).then(name => {
+
+            resolve(name);
+        }).catch(err => reject(err));
+    });
+}
+
+const updateEmployeeWithManager = (obj, selecId, idManager, idEmployee) => {
+    return new Promise((resolve, reject) => {
+        if (idManager === null) {
+            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: obj.firstName, last_name: obj.lastName, role_id: selecId, manager_id: idManager }, { id: idEmployee }], (err, data) => {
+                err ? reject(err) : resolve({ msg: "Success1" });
+            });
+        } else {
+
+            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: obj.firstName, last_name: obj.lastName, role_id: selecId }, { id: idEmployee }], (err, data) => {
+                err ? reject(err) : resolve({ msg: "Success" });
+            });
+        }
+    });
+
+}
+
+const employee = () => {
+
+    return new Promise((resolve, reject) => {
+
+        connection.query("SELECT * FROM employee", (err, data) => {
+            err ? reject(err) : resolve(data);
+        });
+    });
+}
 
 
-module.exports = { update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole };
+
+module.exports = {
+    update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole,
+    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee
+};

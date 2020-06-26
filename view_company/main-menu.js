@@ -7,7 +7,9 @@ const { add, departmentName, addDepartment, roles, checkDepartment, addRole, che
 
 } = require("./add.js");
 
-const { update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole } = require("./update.js");
+const { update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole,
+    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee
+} = require("./update.js");
 
 
 
@@ -227,16 +229,89 @@ const mainMenu = async () => {
 
                                                     updateSelectedRoles(resObj, finalIdtoUpdate).then(() => mainMenu());
                                                 });
-
                                             });
-
                                         });
                                     });
                                 });
                                 break;
 
                             case "Employee":
-                                searchMenu();
+                                selectFromRolesToGetId().then(arrRoles => {
+                                    const table = cTable.getTable(arrRoles);
+                                    console.log(table);
+                                    inquirer.prompt([
+                                        {
+
+                                            type: "input",
+                                            name: "selectedId",
+                                            message: "Choose what role_id you want for your Employee from the table",
+                                        },
+                                        {
+
+                                            type: "input",
+                                            name: "manager_id",
+                                            message: "Does your Employee have manager?\nType : yes/no",
+                                        },
+
+                                    ]).then(resId => {
+                                        const selectId = parseInt(resId.selectedId);
+                                        if (resId.manager_id === "no") {
+                                            const managerId = null;
+                                            makeEmployee().then(objRes => {
+                                                employee().then(employee => {
+                                                    const employeeTable = cTable.getTable(employee);
+                                                    console.log(employeeTable);
+
+                                                    inquirer.prompt({
+
+                                                        type: "input",
+                                                        name: "employeeId",
+                                                        message: "Choose what id employe you want to update",
+                                                    }).then(employeeUpdate => {
+
+                                                        const idEmp = parseInt(employeeUpdate.employeeId);
+                                                        console.log(idEmp);
+                                                        updateEmployeeWithManager(objRes, selectId, managerId, idEmp).then((res) => {
+
+                                                            console.log(res);
+                                                            mainMenu();
+                                                        });
+                                                    })
+
+                                                });
+
+                                            })
+                                        } else {
+
+                                            makeEmployee().then(objRes => {
+                                                console.log(objRes);
+                                                console.log(typeof managerId);
+                                                employee().then(employee => {
+                                                    const employeeTable = cTable.getTable(employee);
+                                                    console.log(employeeTable);
+
+                                                    inquirer.prompt({
+
+                                                        type: "input",
+                                                        name: "employeeId",
+                                                        message: "Choose what id employe you want to update",
+                                                    }).then(employeeUpdate => {
+
+                                                        const idEmp = parseInt(employeeUpdate.employeeId);
+                                                        updateEmployeeWithManager(objRes, selectId, idEmp).then((res) => {
+
+                                                            console.log(res);
+                                                            mainMenu();
+                                                        });
+                                                    })
+
+                                                });
+
+                                            })
+
+                                        }
+                                    });
+                                })
                                 break;
                             case "Exit":
                                 connection.end();
