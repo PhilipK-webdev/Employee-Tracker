@@ -11,8 +11,9 @@ const { update, joinDepartment, selectDepartment, updateSelectedDepartment, join
     selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee, updateEmployee
 } = require("./update.js");
 
-const { chooseToDelete, queryCompany, deleteFromCompany } = require("./delete.js");
+const { chooseToDelete, queryCompany, deleteFromCompanyDepartment, deleteFromCompanyRoles, deleteFromCompanyEmployee } = require("./delete.js");
 const salary = require("./total.js");
+
 
 const mainMenu = async () => {
 
@@ -332,13 +333,51 @@ const mainMenu = async () => {
                     });
                     break;
                 case "Delete":
-                    chooseToDelete().then(choice => {
-                        console.log(choice);
-                        queryCompany(choice).then(queryObj => {
-                            const selectWhatToDelete = cTable.getTable(queryObj);
-                            console.log(selectWhatToDelete);
-                            deleteFromCompany(choice).then(() => mainMenu());
-                        });
+                    chooseToDelete().then(choiceDelete => {
+                        console.log(choiceDelete);
+
+                        if (choiceDelete === "department") {
+                            queryCompany(choiceDelete).then(queryObj => {
+                                const selectWhatToDelete = cTable.getTable(queryObj);
+                                console.log(selectWhatToDelete);
+                                const queryAll = [];
+                                for (let i = 0; i < queryObj.length; i++) {
+                                    queryAll.push(queryObj[i].depatrmentName);
+                                }
+                                console.log(queryAll);
+                                deleteFromCompanyDepartment(queryAll, queryObj, choiceDelete).then(() => mainMenu());
+                            });
+                        } else if (choiceDelete === "roles") {
+
+
+                            queryCompany(choiceDelete).then(queryObj => {
+                                const selectWhatToDelete = cTable.getTable(queryObj);
+                                console.log(selectWhatToDelete);
+                                const queryAll = [];
+                                for (let i = 0; i < queryObj.length; i++) {
+                                    queryAll.push(queryObj[i].title);
+                                }
+                                console.log(queryAll);
+                                deleteFromCompanyRoles(queryAll, queryObj, choiceDelete).then(() => mainMenu());
+                            });
+                        } else {
+
+
+
+
+
+                            queryCompany(choiceDelete).then(queryObj => {
+                                const selectWhatToDelete = cTable.getTable(queryObj);
+                                console.log(selectWhatToDelete);
+                                const queryAll = [];
+                                for (let i = 0; i < queryObj.length; i++) {
+                                    queryAll.push(queryObj[i].first_name + " " + queryObj[i].last_name);
+                                }
+                                deleteFromCompanyEmployee(queryAll, queryObj, choiceDelete).then(() => mainMenu());
+                            });
+
+                        }
+
                     });
                     break;
                 case "Total Salary":
@@ -386,7 +425,6 @@ async function viewCompany() {
         ],
     }]).then(res => {
         let result = res.view;
-        console.log(result);
         readAllCompany(result).then((res) => {
             const table = cTable.getTable(res);
             console.log(table);
@@ -398,22 +436,40 @@ async function viewCompany() {
 
 const readAllCompany = (result) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM ${result} `, (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data);
-            }
-        });
+        if (result === "department") {
+            connection.query(`SELECT depatrmentName FROM ${result} `, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        } else if (result === "roles") {
+
+            connection.query(`SELECT department_id,title FROM ${result} `, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        } else {
+            connection.query(`SELECT first_name,last_name,role_id,manager_id FROM ${result} `, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        }
+
     });
 };
 
 
 const viewAllJoinDepRolEmp = () => {
-
     return new Promise((resolve, reject) => {
-
-        connection.query(`SELECT employee.id,employee.first_name,employee.last_name,roles.title,department.depatrmentName,roles.salary,employee.role_id,employee.manager_id
+        connection.query(`SELECT employee.first_name,employee.last_name,roles.title,department.depatrmentName,roles.salary,employee.role_id,employee.manager_id
         FROM roles INNER JOIN employee
         ON employee.role_id = roles.id
         INNER JOIN department
