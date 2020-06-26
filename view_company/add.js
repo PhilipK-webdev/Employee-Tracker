@@ -164,29 +164,15 @@ const addRole = (obj) => {
 
 const createEmployee = () => {
     return new Promise((resolve, reject) => {
-        inquirer.prompt([
-            {
-                type: "input",
-                name: "nameDepartment",
-                message: "Which department you want to add the new employee?",
-            },
-
-            {
-                type: "confirm",
-                name: "ansConfirm",
-                message: "Does your employee has Manager",
-                default: false,
-            },
-        ]).then(answer => {
-
-            resolve(answer);
+        roles().then(res => {
+            resolve(res);
         }).catch(err => reject(err));
-    }).catch(err => console.log({ err: err }));
+    });
 
 }
 const checkdOfRolesAndDep = (name) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT roles.title, department.depatrmentName, roles.department_id, roles.id
+        connection.query(`SELECT roles.title, department.depatrmentName, roles.department_id,roles.salary
         FROM roles INNER JOIN department
         ON roles.department_id = department.id
         WHERE ? `, [{ depatrmentName: name }], (err, data) => {
@@ -202,13 +188,13 @@ const checkIfManger = (name) => {
         ON employee.role_id = roles.id
         INNER JOIN department
         ON department.id = roles.department_id
-        WHERE ? AND ? `, [{ title: "Manager" }, { depatrmentName: name }], (err, data) => {
+        WHERE title="Manager" AND ? `, [{ depatrmentName: name }], (err, data) => {
             err ? reject(err) : resolve(data);
         });
     });
 }
 
-const addEmployee = (id) => {
+const addEmployee = (objTemp) => {
     return new Promise((resolve, reject) => {
         inquirer.prompt([
             {
@@ -222,7 +208,7 @@ const addEmployee = (id) => {
                 message: "Employee last name",
             },
         ]).then(resFirstLast => {
-
+            const id = parseInt(objTemp[0].department_id);
             connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id }],
                 (err, data) => {
 

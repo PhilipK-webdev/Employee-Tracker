@@ -103,50 +103,78 @@ const mainMenu = async () => {
                             case "employee":
                                 createEmployee().then(responseNameDep => {
                                     console.log(responseNameDep);
+                                    checkIfManger(responseNameDep).then(res => {
+                                        const table = cTable.getTable(res);
+                                        console.log(table);
+                                        console.log(res);
+                                        if (res.length === 0) {
+                                            console.log("No Employee that is Manager in the company");
+                                            checkdOfRolesAndDep(responseNameDep).then(response => {
 
-                                    if (responseNameDep.ansConfirm) {
-
-                                        checkIfManger(responseNameDep.nameDepartment).then(res => {
-                                            const table = cTable.getTable(res);
-                                            console.log(table);
-                                            console.log(res[0].id);
-                                            let managerId = parseInt(res[0].id);
-                                            console.log(managerId);
-                                            checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
                                                 const table = cTable.getTable(response);
                                                 console.log(table);
+
+                                                let arrOfTitle = [];
+                                                for (let i = 0; i < response.length; i++) {
+
+                                                    arrOfTitle.push(response[i].title);
+                                                }
+                                                let unique = [...new Set(arrOfTitle)];
                                                 inquirer.prompt({
 
-                                                    type: "input",
-                                                    name: "idUser",
-                                                    message: "choice wich role you want your employee\n select the id colum",
-                                                }).then(id => {
-                                                    const parseId = parseInt(id.idUser);
-                                                    console.log(parseId);
-                                                    addEmployeeWithManager(parseId, managerId).then(() => mainMenu());
+                                                    type: "list",
+                                                    name: "userRole",
+                                                    message: "What role you want your Employee to be?",
+                                                    choices: unique
+                                                }).then(title => {
+                                                    console.log(title.userRole);
+                                                    const temp = response.filter((name) => {
+                                                        return name.title === title.userRole;
+                                                    });
+                                                    console.log(temp);
+                                                    console.log(title.userRole);
+                                                    addEmployee(temp).then(() => mainMenu());
+
                                                 })
 
                                             });
 
-                                        });
+                                        }
+                                    });
 
-                                    } else {
 
-                                        checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
-                                            const table = cTable.getTable(response);
-                                            console.log(table);
-                                            inquirer.prompt({
 
-                                                type: "input",
-                                                name: "idUser",
-                                                message: "choice wich role you want your employee\n select the id colum",
-                                            }).then(id => {
-                                                const parseId = parseInt(id.idUser);
-                                                console.log(parseId);
-                                                addEmployee(parseId).then(() => mainMenu());
-                                            })
-                                        });
-                                    }
+
+
+
+
+
+
+
+
+
+
+
+                                    // if (responseNameDep.ansConfirm) {
+                                    //     
+
+                                    // } else {
+
+                                    //     checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
+                                    //         const table = cTable.getTable(response);
+                                    //         console.log(table);
+                                    //         inquirer.prompt({
+
+                                    //             type: "input",
+                                    //             name: "idUser",
+                                    //             message: "choice wich role you want your employee\n select the id colum",
+                                    //         }).then(id => {
+                                    //             const parseId = parseInt(id.idUser);
+                                    //             console.log(parseId);
+                                    //             addEmployee(parseId).then(() => mainMenu());
+                                    //         })
+                                    //     });
+                                    // }
                                 });
                                 break;
                             case "Main Menu":
