@@ -71,44 +71,31 @@ const queryAllDepartment = () => {
 }
 
 const roles = () => {
-
-    queryAllDepartment().then(res => {
-
-        const queryAll = [];
-
-        for (let i = 0; i < res.length; i++) {
-
-            queryAll.push(res[i].depatrmentName);
-
-        }
-        console.log(queryAll);
-    });
-
     return new Promise((resolve, reject) => {
-        inquirer.prompt([
-            {
-                type: "list",
-                name: "department",
-                message: "Which department you want to add the role?",
-                choices: [
-                    `${queryAll[0]}`
-                ],
-            },
-        ]).then(res => {
+        queryAllDepartment().then(res => {
+            const queryAll = [];
+            for (let i = 0; i < res.length; i++) {
+                queryAll.push(res[i].depatrmentName);
+            }
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "department",
+                    message: "Which department you want to add the role?",
+                    choices: queryAll,
+                },
+            ]).then(res => {
+                const result = res.department;
+                resolve(result);
+            }).catch(err => reject(err));
 
-            const result = res.department;
-            resolve(result);
-        }).catch(err => reject(err));
-
+        });
     });
-
 }
 
 const checkDepartment = (name) => {
     return new Promise((resolve, reject) => {
-
         connection.query("SELECT * FROM department WHERE ?", [{ depatrmentName: name }], (err, data) => {
-
             err ? reject(err) : resolve(data);
         });
     });
@@ -120,9 +107,9 @@ const checkDepartmentAndRoles = () => {
     return new Promise((resolve, reject) => {
 
         connection.query(`
-        SELECT roles.id ,roles.title,roles.department_id,department.id,department.depatrmentName
+        SELECT roles.id, roles.title, roles.department_id, department.id, department.depatrmentName
         FROM roles INNER JOIN department
-	ON roles.department_id = department.id;
+        ON roles.department_id = department.id;
         `, (err, data) => {
 
             err ? reject(err) : resolve(data);
@@ -240,10 +227,10 @@ const createEmployee = () => {
 const checkdOfRolesAndDep = (name) => {
 
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT roles.title,department.depatrmentName,roles.department_id,roles.id
+        connection.query(`SELECT roles.title, department.depatrmentName, roles.department_id, roles.id
         FROM roles INNER JOIN department
         ON roles.department_id = department.id
-        WHERE ?`, [{ depatrmentName: name }], (err, data) => {
+        WHERE ? `, [{ depatrmentName: name }], (err, data) => {
             err ? reject(err) : resolve(data);
         });
     });
@@ -252,12 +239,12 @@ const checkdOfRolesAndDep = (name) => {
 const checkIfManger = (name) => {
 
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT employee.first_name,roles.department_id,roles.title,employee.id
+        connection.query(`SELECT employee.first_name, roles.department_id, roles.title, employee.id
         FROM employee INNER JOIN roles
         ON employee.role_id = roles.id
         INNER JOIN department
         ON department.id = roles.department_id
-        WHERE ? AND ?`, [{ title: "Manager" }, { depatrmentName: name }], (err, data) => {
+        WHERE ? AND ? `, [{ title: "Manager" }, { depatrmentName: name }], (err, data) => {
             err ? reject(err) : resolve(data);
         });
     });

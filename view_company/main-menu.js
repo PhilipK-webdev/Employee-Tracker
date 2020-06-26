@@ -36,62 +36,60 @@ const mainMenu = async () => {
 
                             case "department":
                                 departmentName().then(name => {
-                                    addDepartment(name).then(res => console.log(res));
+                                    addDepartment(name).then(() => mainMenu());
                                 });
                                 break;
 
                             case "roles":
+                                roles().then(roleNameToDepartment => {
+                                    const nameDepartment = roleNameToDepartment;
+                                    checkDepartment(nameDepartment).then(resId => {
+                                        const fromDepartmentObj = resId;
+                                        checkDepartmentAndRoles().then(res => {
+                                            let map = res.map(element => {
+                                                if (roleNameToDepartment === element.depatrmentName) {
+                                                    return {
 
+                                                        department_id: element.department_id,
+                                                        depatrmentName: element.depatrmentName,
+                                                        title: element.title
+                                                    };
+                                                }
+                                            });
 
-                                // roles().then(roleNameToDepartment => {
-                                //     const nameDepartment = roleNameToDepartment;
-                                //     checkDepartment(nameDepartment).then(resId => {
-                                //         const fromDepartmentObj = resId;
-                                //         checkDepartmentAndRoles().then(res => {
-                                //             let map = res.map(element => {
-                                //                 if (roleNameToDepartment === element.depatrmentName) {
-                                //                     return {
+                                            map = map.filter(function (e) { return e });
+                                            const temp = map.filter((name) => {
+                                                return name.title === "Manager";
+                                            });
+                                            console.log(fromDepartmentObj);
+                                            console.log(temp);
+                                            if (temp.length === 0) {
+                                                console.log("In this Department No Manager Yet");
+                                                checkRoleExists(fromDepartmentObj).then(createRole => {
 
-                                //                         department_id: element.department_id,
-                                //                         depatrmentName: element.depatrmentName,
-                                //                         title: element.title
-                                //                     };
-                                //                 }
-                                //             });
+                                                    addRole(createRole).then(res => {
+                                                        console.log(res)
+                                                        mainMenu();
+                                                    });
+                                                });
+                                            } else if (temp[0].title === "Manager") {
 
-                                //             map = map.filter(function (e) { return e });
-                                //             const temp = map.filter((name) => {
-                                //                 return name.title === "Manager";
-                                //             });
-                                //             console.log(fromDepartmentObj);
-                                //             console.log(temp);
-                                //             if (temp.length === 0) {
-                                //                 console.log("In this Department No Manager Yet");
-                                //                 checkRoleExists(fromDepartmentObj).then(createRole => {
+                                                console.log("Manager Exists");
+                                                checkRoleManager(fromDepartmentObj).then(createRole => {
 
-                                //                     addRole(createRole).then(res => {
-                                //                         console.log(res)
-                                //                         mainMenu();
-                                //                     });
-                                //                 });
-                                //             } else if (temp[0].title === "Manager") {
+                                                    addRole(createRole).then(res => {
+                                                        console.log(res)
+                                                        mainMenu();
+                                                    });
+                                                });
+                                            } else {
 
-                                //                 console.log("Manager Exists");
-                                //                 checkRoleManager(fromDepartmentObj).then(createRole => {
+                                                console.log("Success");
+                                            }
+                                        });
+                                    });
 
-                                //                     addRole(createRole).then(res => {
-                                //                         console.log(res)
-                                //                         mainMenu();
-                                //                     });
-                                //                 });
-                                //             } else {
-
-                                //                 console.log("Success");
-                                //             }
-                                //         });
-                                //     });
-
-                                // });
+                                });
                                 break;
 
                             case "employee":
@@ -139,17 +137,10 @@ const mainMenu = async () => {
                                                 console.log(parseId);
                                                 addEmployee(parseId).then(() => mainMenu());
                                             })
-
                                         });
-
                                     }
-
-
-
                                 });
-
                                 break;
-
                             case "Main Menu":
                                 mainMenu();
                                 break;
@@ -194,53 +185,53 @@ const mainMenu = async () => {
                             case "Roles":
                                 joinRoles().then(rolesObj => {
                                     console.log(rolesObj);
-                                    inquirer.prompt({
-                                        type: "list",
-                                        name: "id",
-                                        message: "Choice from what department you want to update the roles:",
-                                        choices: [
-                                            "1-Sales",
-                                            "2-Developers",
-                                            "3-UI/UX",
-                                            "4-Product",
-                                        ],
-                                    }).then(res => {
-                                        const idDepartment = res.id;
-                                        console.log(rolesObj);
-                                        let matches = parseInt(idDepartment.match(/(\d+)/)[0]);
-                                        const filterObj = rolesObj.filter(role => {
-                                            return role.department_id === matches;
-                                        });
-                                        let result = filterObj.map(a => a.id);
+                                    queryAllDepartment().then(arrAllDepartments => {
+                                        const queryAll = [];
+                                        for (let i = 0; i < arrAllDepartments.length; i++) {
+                                            queryAll.push(arrAllDepartments[i].depatrmentName);
+                                        }
                                         inquirer.prompt({
                                             type: "list",
-                                            name: "updateID",
-                                            message: "Choise ID for update",
-                                            choices: [
-                                                `${result[0]}`,
-                                                `${result[1]}`,
-                                                `${result[2]}`,
-                                            ]
+                                            name: "x",
+                                            message: "Choice from what department you want to update the roles:",
+                                            choices: queryAll,
                                         }).then(res => {
-                                            const resId = parseInt(res.updateID);
-                                            let objFilterID = filterObj.map(oneObj => {
-                                                if (oneObj.id === resId) {
-
-                                                    return oneObj;
-                                                }
+                                            const filterDepartment = arrAllDepartments.filter(elemenet => {
+                                                return elemenet.depatrmentName === res.x;
                                             });
-                                            objFilterID = objFilterID.filter(function (e) { return e });
-                                            console.log(objFilterID);
-                                            const finalIdtoUpdate = objFilterID[0].id;
-                                            createRole(objFilterID[0].department_id).then(resObj => {
 
-                                                updateSelectedRoles(resObj, finalIdtoUpdate).then(() => mainMenu());
+                                            const idChoice = filterDepartment[0].id;
+                                            console.log(idChoice);
+                                            const filterObj = rolesObj.filter(role => {
+                                                return role.department_id === idChoice;
+                                            });
+                                            console.log(filterObj);
+                                            let result = filterObj.map(a => a.id);
+                                            console.log(result);
+                                            inquirer.prompt({
+                                                type: "list",
+                                                name: "updateID",
+                                                message: "Choise ID for update",
+                                                choices: result,
+                                            }).then(res => {
+                                                const resId = parseInt(res.updateID);
+                                                let objFilterID = filterObj.map(oneObj => {
+                                                    if (oneObj.id === resId) {
+                                                        return oneObj;
+                                                    }
+                                                });
+                                                objFilterID = objFilterID.filter(function (e) { return e });
+                                                console.log(objFilterID);
+                                                const finalIdtoUpdate = objFilterID[0].id;
+                                                createRole(objFilterID[0].department_id).then(resObj => {
+
+                                                    updateSelectedRoles(resObj, finalIdtoUpdate).then(() => mainMenu());
+                                                });
+
                                             });
 
                                         });
-
                                     });
-
                                 });
                                 break;
 
