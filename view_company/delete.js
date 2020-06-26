@@ -1,6 +1,5 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
-const cTable = require('console.table');
 const chooseToDelete = () => {
     return new Promise((resolve, reject) => {
         inquirer.prompt([{
@@ -11,8 +10,6 @@ const chooseToDelete = () => {
                 "department",
                 "roles",
                 "employee",
-                "Main Menu",
-                "Exit"
             ],
         }]).then(res => {
             resolve(res.select);

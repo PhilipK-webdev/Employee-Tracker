@@ -1,14 +1,15 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const { add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists,
+const {
+    add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists,
     checkDepartmentAndRoles, checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee,
     checkIfManger, addEmployeeWithManager, queryAllDepartment
 
 } = require("./add.js");
 
 const { update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole,
-    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee, updateEmployee
+    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee
 } = require("./update.js");
 
 const { chooseToDelete, queryCompany, deleteFromCompanyDepartment, deleteFromCompanyRoles, deleteFromCompanyEmployee } = require("./delete.js");
@@ -174,14 +175,12 @@ const mainMenu = async () => {
                                             return department.depatrmentName === selected;
                                         });
                                         inquirer.prompt({
-
                                             type: "input",
                                             name: "newName",
                                             message: "What is the new name of the department?"
                                         }).then(resName => {
                                             parseInt(singleDepUpdate[0].id);
                                             updateSelectedDepartment(singleDepUpdate[0].id, resName.newName).then(res => {
-                                                console.log(res);
                                                 mainMenu();
                                             });
                                         });
@@ -206,29 +205,24 @@ const mainMenu = async () => {
                                             const filterDepartment = arrAllDepartments.filter(elemenet => {
                                                 return elemenet.depatrmentName === res.x;
                                             });
-
                                             const idChoice = filterDepartment[0].id;
-                                            console.log(idChoice);
                                             const filterObj = rolesObj.filter(role => {
                                                 return role.department_id === idChoice;
                                             });
-                                            console.log(filterObj);
-                                            let result = filterObj.map(a => a.id);
-                                            console.log(result);
+
+                                            let result = filterObj.map(a => a.title);
                                             inquirer.prompt({
                                                 type: "list",
-                                                name: "updateID",
-                                                message: "Choise ID for update",
+                                                name: "updateRole",
+                                                message: "Choise Role for update",
                                                 choices: result,
                                             }).then(res => {
-                                                const resId = parseInt(res.updateID);
                                                 let objFilterID = filterObj.map(oneObj => {
-                                                    if (oneObj.id === resId) {
+                                                    if (oneObj.title === res.updateRole) {
                                                         return oneObj;
                                                     }
                                                 });
                                                 objFilterID = objFilterID.filter(function (e) { return e });
-                                                console.log(objFilterID);
                                                 const finalIdtoUpdate = objFilterID[0].id;
                                                 createRole(objFilterID[0].department_id).then(resObj => {
 
@@ -244,80 +238,35 @@ const mainMenu = async () => {
                                 selectFromRolesToGetId().then(arrRoles => {
                                     const table = cTable.getTable(arrRoles);
                                     console.log(table);
-                                    inquirer.prompt([
-                                        {
-
-                                            type: "input",
-                                            name: "selectedId",
-                                            message: "Choose what role_id you want for your Employee from the table",
-                                        },
-                                        {
-
-                                            type: "input",
-                                            name: "manager_id",
-                                            message: "Does your Employee have manager?\nType : yes/no",
-                                        },
-
-                                    ]).then(resId => {
-                                        const selectId = parseInt(resId.selectedId);
-                                        if (resId.manager_id === "no") {
-                                            const managerId = null;
-                                            makeEmployee().then(objRes => {
-                                                employee().then(employee => {
-                                                    const employeeTable = cTable.getTable(employee);
-                                                    console.log(employeeTable);
-
-                                                    inquirer.prompt({
-
-                                                        type: "input",
-                                                        name: "employeeId",
-                                                        message: "Choose what id employe you want to update",
-                                                    }).then(employeeUpdate => {
-
-                                                        const idEmp = parseInt(employeeUpdate.employeeId);
-                                                        console.log(idEmp);
-                                                        updateEmployeeWithManager(objRes, selectId, managerId, idEmp).then((res) => {
-
-                                                            console.log(res);
-                                                            mainMenu();
-                                                        });
-                                                    })
-
-                                                });
-
-                                            })
-                                        } else {
-
-                                            makeEmployee().then(objRes => {
-                                                console.log(objRes);
-                                                employee().then(employee => {
-                                                    const employeeTable = cTable.getTable(employee);
-                                                    console.log(employeeTable);
-
-                                                    inquirer.prompt({
-
-                                                        type: "input",
-                                                        name: "employeeId",
-                                                        message: "Choose what id employe you want to update",
-                                                    }).then(employeeUpdate => {
-
-                                                        const idEmp = parseInt(employeeUpdate.employeeId);
-                                                        console.log(idEmp);
-                                                        console.log(selectId);
-                                                        updateEmployee(objRes, selectId, idEmp).then((res) => {
-
-                                                            console.log(res);
-                                                            mainMenu();
-                                                        });
-                                                    })
-
-                                                });
-
-                                            });
-
+                                    employee().then(employee => {
+                                        const employeeTable = cTable.getTable(employee);
+                                        console.log(employeeTable);
+                                        const queryAllEmployee = [];
+                                        for (let i = 0; i < employee.length; i++) {
+                                            queryAllEmployee.push(employee[i].first_name + " " + employee[i].last_name);
                                         }
+                                        console.log(queryAllEmployee);
+
+                                        inquirer.prompt({
+
+                                            type: "list",
+                                            name: "employeeName",
+                                            message: "Choose wich employee you want to update",
+                                            choices: queryAllEmployee
+                                        }).then(employeeRes => {
+
+                                            const select = employee.filter(element => {
+                                                return element.first_name + " " + element.last_name === employeeRes.employeeName;
+                                            });
+                                            console.log(select);
+                                            updateEmployeeWithManager(select[0].id).then((res) => {
+                                                console.log(res);
+                                                mainMenu();
+                                            });
+                                        });
                                     });
-                                })
+                                });
+
                                 break;
 
                             case "Main Menu":
@@ -334,8 +283,6 @@ const mainMenu = async () => {
                     break;
                 case "Delete":
                     chooseToDelete().then(choiceDelete => {
-                        console.log(choiceDelete);
-
                         if (choiceDelete === "department") {
                             queryCompany(choiceDelete).then(queryObj => {
                                 const selectWhatToDelete = cTable.getTable(queryObj);
@@ -348,8 +295,6 @@ const mainMenu = async () => {
                                 deleteFromCompanyDepartment(queryAll, queryObj, choiceDelete).then(() => mainMenu());
                             });
                         } else if (choiceDelete === "roles") {
-
-
                             queryCompany(choiceDelete).then(queryObj => {
                                 const selectWhatToDelete = cTable.getTable(queryObj);
                                 console.log(selectWhatToDelete);
@@ -361,11 +306,6 @@ const mainMenu = async () => {
                                 deleteFromCompanyRoles(queryAll, queryObj, choiceDelete).then(() => mainMenu());
                             });
                         } else {
-
-
-
-
-
                             queryCompany(choiceDelete).then(queryObj => {
                                 const selectWhatToDelete = cTable.getTable(queryObj);
                                 console.log(selectWhatToDelete);
@@ -375,9 +315,7 @@ const mainMenu = async () => {
                                 }
                                 deleteFromCompanyEmployee(queryAll, queryObj, choiceDelete).then(() => mainMenu());
                             });
-
                         }
-
                     });
                     break;
                 case "Total Salary":
@@ -385,17 +323,14 @@ const mainMenu = async () => {
                         let objSalary = [];
                         let totalSalaryCompany = 0;
                         for (let i = 0; i < allRolesWithSalary.length; i++) {
-
                             if (typeof allRolesWithSalary[i].salary === "number") {
-
                                 objSalary.push(allRolesWithSalary[i].salary);
                             }
                         }
-
                         for (let i = 0; i < objSalary.length; i++) {
-
                             totalSalaryCompany += objSalary[i];
                         }
+
                         console.log(totalSalaryCompany);
                         mainMenu();
                     });
