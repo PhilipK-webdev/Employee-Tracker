@@ -144,16 +144,18 @@ const makeEmployee = () => {
 
 const updateEmployeeWithManager = (obj, selecId, idManager, idEmployee) => {
     return new Promise((resolve, reject) => {
-        if (idManager === null) {
-            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: obj.firstName, last_name: obj.lastName, role_id: selecId, manager_id: idManager }, { id: idEmployee }], (err, data) => {
-                err ? reject(err) : resolve({ msg: "Success1" });
-            });
-        } else {
+        connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: obj.firstName, last_name: obj.lastName, role_id: selecId, manager_id: idManager }, { id: idEmployee }], (err, data) => {
+            err ? reject(err) : resolve({ msg: "Success1" });
+        });
+    });
 
-            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: obj.firstName, last_name: obj.lastName, role_id: selecId }, { id: idEmployee }], (err, data) => {
-                err ? reject(err) : resolve({ msg: "Success" });
-            });
-        }
+}
+
+const updateEmployee = (obj, selecId, idMan) => {
+    return new Promise((resolve, reject) => {
+        connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: obj.firstName, last_name: obj.lastName, role_id: selecId, manager_id: selecId }, { id: idMan }], (err, data) => {
+            err ? reject(err) : resolve({ msg: "Success1" });
+        });
     });
 
 }
@@ -172,5 +174,5 @@ const employee = () => {
 
 module.exports = {
     update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole,
-    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee
+    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee, updateEmployee
 };

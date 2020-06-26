@@ -8,10 +8,10 @@ const { add, departmentName, addDepartment, roles, checkDepartment, addRole, che
 } = require("./add.js");
 
 const { update, joinDepartment, selectDepartment, updateSelectedDepartment, joinRoles, updateSelectedRoles, createRole,
-    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee
+    selectFromRolesToGetId, updateEmployeeWithManager, makeEmployee, employee, updateEmployee
 } = require("./update.js");
 
-
+const { chooseToDelete, queryCompany, deleteFromCompany } = require("./delete.js");
 
 const mainMenu = async () => {
 
@@ -285,7 +285,6 @@ const mainMenu = async () => {
 
                                             makeEmployee().then(objRes => {
                                                 console.log(objRes);
-                                                console.log(typeof managerId);
                                                 employee().then(employee => {
                                                     const employeeTable = cTable.getTable(employee);
                                                     console.log(employeeTable);
@@ -298,7 +297,9 @@ const mainMenu = async () => {
                                                     }).then(employeeUpdate => {
 
                                                         const idEmp = parseInt(employeeUpdate.employeeId);
-                                                        updateEmployeeWithManager(objRes, selectId, idEmp).then((res) => {
+                                                        console.log(idEmp);
+                                                        console.log(selectId);
+                                                        updateEmployee(objRes, selectId, idEmp).then((res) => {
 
                                                             console.log(res);
                                                             mainMenu();
@@ -307,11 +308,15 @@ const mainMenu = async () => {
 
                                                 });
 
-                                            })
+                                            });
 
                                         }
                                     });
                                 })
+                                break;
+
+                            case "Main Menu":
+                                mainMenu();
                                 break;
                             case "Exit":
                                 connection.end();
@@ -319,15 +324,19 @@ const mainMenu = async () => {
                                 break;
                             default:
                                 break;
-
                         }
-
-
                     });
                     break;
 
                 case "Delete":
-                    searchMenu();
+                    chooseToDelete().then(choice => {
+                        console.log(choice);
+                        queryCompany(choice).then(queryObj => {
+                            const selectWhatToDelete = cTable.getTable(queryObj);
+                            console.log(selectWhatToDelete);
+                            deleteFromCompany(choice).then(() => mainMenu());
+                        });
+                    });
                     break;
 
                 case "Total Salary":
