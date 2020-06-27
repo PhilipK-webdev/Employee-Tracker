@@ -214,8 +214,6 @@ const mainMenu = async () => {
                                         const select = employee.filter(element => {
                                             return element.first_name + " " + element.last_name === employeeRes.employeeName;
                                         });
-
-                                        console.log(select);
                                         updateEmployeeWithManager(select[0].id).then(() => mainMenu());
                                     });
                                 });
@@ -244,8 +242,6 @@ const mainMenu = async () => {
                             });
                         } else if (choiceDelete === "roles") {
                             queryCompany(choiceDelete).then(queryObj => {
-                                const selectWhatToDelete = cTable.getTable(queryObj);
-                                console.log(selectWhatToDelete);
                                 const queryAll = [];
                                 for (let i = 0; i < queryObj.length; i++) {
                                     queryAll.push(queryObj[i].title);
@@ -254,8 +250,6 @@ const mainMenu = async () => {
                             });
                         } else {
                             queryCompany(choiceDelete).then(queryObj => {
-                                const selectWhatToDelete = cTable.getTable(queryObj);
-                                console.log(selectWhatToDelete);
                                 const queryAll = [];
                                 for (let i = 0; i < queryObj.length; i++) {
                                     queryAll.push(queryObj[i].first_name + " " + queryObj[i].last_name);
@@ -277,8 +271,8 @@ const mainMenu = async () => {
                         for (let i = 0; i < objSalary.length; i++) {
                             totalSalaryCompany += objSalary[i];
                         }
-
-                        console.log(totalSalaryCompany);
+                        const salaryTable = cTable.getTable([{ salary: totalSalaryCompany }]);
+                        console.log(salaryTable);
                         mainMenu();
                     });
                     break;
