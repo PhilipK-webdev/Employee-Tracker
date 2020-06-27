@@ -250,7 +250,6 @@ const addEmployee = (objTemp) => {
 
                     connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id }],
                         (err, data) => {
-
                             err ? reject(err) : resolve({ msg: "Success" });
                         });
                 }

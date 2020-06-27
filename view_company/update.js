@@ -192,17 +192,14 @@ const updateEmployeeWithManager = (id) => {
                                     singleManager.push(employees[i]);
                                 }
 
+                                let fil = resAllRoles.filter(element => {
+                                    return element.title === response.role;
+                                });
+                                connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: singleManager[0].id }, { id: id }], (err, data) => {
+                                    err ? reject(err) : resolve({ msg: "Success1" });
+                                });
                             }
-
-                            let fil = resAllRoles.filter(element => {
-                                return element.title === response.role;
-                            });
-                            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: singleManager[0].id }, { id: id }], (err, data) => {
-                                err ? reject(err) : resolve({ msg: "Success1" });
-                            });
-
                         });
-
 
                     } else {
 
@@ -215,9 +212,6 @@ const updateEmployeeWithManager = (id) => {
                         });
 
                     }
-
-
-
 
                 });
             });
