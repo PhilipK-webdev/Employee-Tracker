@@ -1,6 +1,5 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
-const cTable = require('console.table');
 const update = () => {
     return new Promise((resolve, reject) => {
         inquirer.prompt([{
@@ -192,22 +191,20 @@ const updateEmployeeWithManager = (id) => {
                             message: "select who is the manager",
                             choices: queryAllEmployee
                         }).then(answerUser => {
-
+                            let fil;
                             let singleManager = [];
                             for (let i = 0; i < employees.length; i++) {
                                 if (employees[i].first_name + " " + employees[i].last_name === answerUser.managerSelected) {
                                     singleManager.push(employees[i]);
                                 }
-
-                                let fil = resAllRoles.filter(element => {
+                                fil = resAllRoles.filter(element => {
                                     return element.title === response.role;
                                 });
-                                connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: singleManager[0].id }, { id: id }], (err, data) => {
-                                    err ? reject(err) : resolve({ msg: "Success1" });
-                                });
                             }
+                            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: singleManager[0].id }, { id: id }], (err, data) => {
+                                err ? reject(err) : resolve({ msg: "Success1" });
+                            });
                         });
-
                     } else {
 
                         const maNull = null

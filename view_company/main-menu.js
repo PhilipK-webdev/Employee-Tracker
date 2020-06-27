@@ -34,7 +34,6 @@ const mainMenu = async () => {
                     break;
                 case "View all Company":
                     viewAllJoinDepRolEmp().then(joinObj => {
-
                         const joinTable = cTable.getTable(joinObj);
                         console.log(joinTable);
                         mainMenu();
@@ -69,24 +68,15 @@ const mainMenu = async () => {
                                             const temp = map.filter((name) => {
                                                 return name.title === "Manager";
                                             });
-                                            console.log(fromDepartmentObj);
-                                            console.log(temp);
                                             if (temp.length === 0) {
-                                                console.log("In this Department No Manager Yet");
                                                 checkRoleExists(fromDepartmentObj).then(createRole => {
-
-                                                    addRole(createRole).then(res => {
-                                                        console.log(res)
+                                                    addRole(createRole).then(() => {
                                                         mainMenu();
                                                     });
                                                 });
                                             } else if (temp[0].title === "Manager") {
-
-                                                console.log("Manager Exists");
                                                 checkRoleManager(fromDepartmentObj).then(createRole => {
-
-                                                    addRole(createRole).then(res => {
-                                                        console.log(res)
+                                                    addRole(createRole).then(() => {
                                                         mainMenu();
                                                     });
                                                 });
@@ -96,17 +86,13 @@ const mainMenu = async () => {
                                             }
                                         });
                                     });
-
                                 });
                                 break;
 
                             case "employee":
                                 createEmployee().then(responseNameDep => {
                                     checkIfManger().then(responseIsManagerExits => {
-                                        const manager = responseIsManagerExits;
                                         checkdOfRolesAndDep(responseNameDep).then(response => {
-                                            const table = cTable.getTable(response);
-                                            console.log(table);
                                             let arrOfTitle = [];
                                             for (let i = 0; i < response.length; i++) {
 
@@ -123,9 +109,6 @@ const mainMenu = async () => {
                                                 const temp = response.filter((name) => {
                                                     return name.title === title.userRole;
                                                 });
-                                                console.log(temp);
-                                                // console.log(title.userRole);
-                                                // console.log(manager, "Obj of manager-back from checkIfManager func");
                                                 addEmployee(temp).then(() => mainMenu());
                                             });
                                         });
@@ -149,7 +132,6 @@ const mainMenu = async () => {
                 case "Update":
                     update().then((res) => {
                         const resToUpdate = res;
-
                         switch (resToUpdate) {
                             case "Department":
                                 selectDepartment().then(selected => {
@@ -173,7 +155,6 @@ const mainMenu = async () => {
 
                             case "Roles":
                                 joinRoles().then(rolesObj => {
-                                    console.log(rolesObj);
                                     queryAllDepartment().then(arrAllDepartments => {
                                         const queryAll = [];
                                         for (let i = 0; i < arrAllDepartments.length; i++) {
@@ -218,40 +199,27 @@ const mainMenu = async () => {
                                 break;
 
                             case "Employee":
-                                selectFromRolesToGetId().then(arrRoles => {
-                                    const table = cTable.getTable(arrRoles);
-                                    console.log(table);
-                                    employee().then(employee => {
-                                        const employeeTable = cTable.getTable(employee);
-                                        console.log(employeeTable);
-                                        const queryAllEmployee = [];
-                                        for (let i = 0; i < employee.length; i++) {
-                                            queryAllEmployee.push(employee[i].first_name + " " + employee[i].last_name);
-                                        }
-                                        console.log(queryAllEmployee);
+                                employee().then(employee => {
+                                    const queryAllEmployee = [];
+                                    for (let i = 0; i < employee.length; i++) {
+                                        queryAllEmployee.push(employee[i].first_name + " " + employee[i].last_name);
+                                    }
+                                    inquirer.prompt({
 
-                                        inquirer.prompt({
-
-                                            type: "list",
-                                            name: "employeeName",
-                                            message: "Choose wich employee you want to update",
-                                            choices: queryAllEmployee
-                                        }).then(employeeRes => {
-
-                                            const select = employee.filter(element => {
-                                                return element.first_name + " " + element.last_name === employeeRes.employeeName;
-                                            });
-                                            console.log(select);
-                                            updateEmployeeWithManager(select[0].id).then((res) => {
-                                                console.log(res);
-                                                mainMenu();
-                                            });
+                                        type: "list",
+                                        name: "employeeName",
+                                        message: "Choose wich employee you want to update",
+                                        choices: queryAllEmployee
+                                    }).then(employeeRes => {
+                                        const select = employee.filter(element => {
+                                            return element.first_name + " " + element.last_name === employeeRes.employeeName;
                                         });
+
+                                        console.log(select);
+                                        updateEmployeeWithManager(select[0].id).then(() => mainMenu());
                                     });
                                 });
-
                                 break;
-
                             case "Main Menu":
                                 mainMenu();
                                 break;
@@ -268,13 +236,10 @@ const mainMenu = async () => {
                     chooseToDelete().then(choiceDelete => {
                         if (choiceDelete === "department") {
                             queryCompany(choiceDelete).then(queryObj => {
-                                const selectWhatToDelete = cTable.getTable(queryObj);
-                                console.log(selectWhatToDelete);
                                 const queryAll = [];
                                 for (let i = 0; i < queryObj.length; i++) {
                                     queryAll.push(queryObj[i].depatrmentName);
                                 }
-                                console.log(queryAll);
                                 deleteFromCompanyDepartment(queryAll, queryObj, choiceDelete).then(() => mainMenu());
                             });
                         } else if (choiceDelete === "roles") {
@@ -285,7 +250,6 @@ const mainMenu = async () => {
                                 for (let i = 0; i < queryObj.length; i++) {
                                     queryAll.push(queryObj[i].title);
                                 }
-                                console.log(queryAll);
                                 deleteFromCompanyRoles(queryAll, queryObj, choiceDelete).then(() => mainMenu());
                             });
                         } else {

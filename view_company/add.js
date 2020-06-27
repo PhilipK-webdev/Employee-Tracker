@@ -207,9 +207,7 @@ const addEmployee = (objTemp) => {
                 message: "Employee last name",
             },
         ]).then(resFirstLast => {
-
             const id = parseInt(objTemp[0].id);
-            console.log(id);
             inquirer.prompt({
 
                 type: "confirm",
@@ -238,7 +236,6 @@ const addEmployee = (objTemp) => {
                                 }
 
                             }
-                            console.log(singleManager[0].id);
                             connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id, manager_id: singleManager[0].id }],
                                 (err, data) => {
 
@@ -259,7 +256,7 @@ const addEmployee = (objTemp) => {
 }
 
 const confirmAnswer = async (input) => {
-    if (input === "Manager") {
+    if (input === "Manager" || input === "manager") {
 
         return "Wrong input, Try again, Manager already exists in this department";
     } else {

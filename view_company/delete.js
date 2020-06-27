@@ -36,7 +36,6 @@ const deleteFromCompanyDepartment = (queryArr, queryObj, choice) => {
             const select = queryObj.filter(element => {
                 return element.depatrmentName === res.id;
             });
-            console.log(select[0].depatrmentName.toLowerCase());
             connection.query(`DELETE FROM ${choice}  WHERE ?`, [{ id: parseInt(select[0].id) }], (err, data) => {
                 err ? reject(err) : resolve({ msg: "Works Good" });
             });
