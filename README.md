@@ -2,7 +2,9 @@
   ![inquirer](https://img.shields.io/npm/l/inquirer?color=blue)
   ![followers](https://img.shields.io/github/followers/PhilipK-webdev?logoColor=red&style=social)
   ![badmath](https://img.shields.io/github/languages/top/nielsenjared/badmath)
-
+  ![inquirer](https://img.shields.io/node/v/inquirer)
+)
+  
 # Introduction: Employee Tracker
 
 ## Instructions
