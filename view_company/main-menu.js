@@ -388,11 +388,11 @@ const readAllCompany = (result) => {
 const viewAllJoinDepRolEmp = () => {
     return new Promise((resolve, reject) => {
         connection.query(`
-        SELECT employee.first_name,employee.last_name,roles.title,department.depatrmentName,roles.salary
-        FROM department RIGHT JOIN employee
-        ON department.id = employee.role_id
-        LEFT JOIN roles
-        ON  roles.id= employee.role_id;
+        SELECT employee.first_name,roles.department_id,roles.title,department.depatrmentName,employee.role_id,employee.manager_id
+        FROM employee INNER JOIN roles
+        ON employee.role_id = roles.id
+        INNER JOIN department
+        ON department.id = roles.department_id;
         `, (err, data) => {
 
             err ? reject(err) : resolve(data);

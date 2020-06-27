@@ -173,7 +173,7 @@ const createEmployee = () => {
 }
 const checkdOfRolesAndDep = (name) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT roles.title, department.depatrmentName, roles.department_id,roles.salary
+        connection.query(`SELECT roles.id,roles.title, department.depatrmentName, roles.department_id,roles.salary
         FROM roles INNER JOIN department
         ON roles.department_id = department.id
         WHERE ? `, [{ depatrmentName: name }], (err, data) => {
@@ -208,7 +208,7 @@ const addEmployee = (objTemp) => {
             },
         ]).then(resFirstLast => {
 
-            const id = parseInt(objTemp[0].department_id);
+            const id = parseInt(objTemp[0].id);
             console.log(id);
             inquirer.prompt({
 

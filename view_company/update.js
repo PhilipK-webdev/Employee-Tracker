@@ -1,7 +1,6 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const add = require("./add.js");
 const update = () => {
     return new Promise((resolve, reject) => {
         inquirer.prompt([{
@@ -23,7 +22,7 @@ const update = () => {
 
 const selectDepartment = () => {
     return new Promise((resolve, reject) => {
-        add.queryAllDepartment().then(arrAllDepartments => {
+        queryAllDepartment().then(arrAllDepartments => {
             const queryAll = [];
             for (let i = 0; i < arrAllDepartments.length; i++) {
                 queryAll.push(arrAllDepartments[i].depatrmentName);
@@ -39,6 +38,14 @@ const selectDepartment = () => {
         });
     })
 }
+const queryAllDepartment = () => {
+    return new Promise((resolve, reject) => {
+        connection.query("SELECT * FROM department", (err, data) => {
+            err ? reject(err) : resolve(data);
+        });
+    });
+}
+
 
 const joinDepartment = () => {
     return new Promise((resolve, reject) => {
