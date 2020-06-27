@@ -4,7 +4,7 @@ const cTable = require('console.table');
 const {
     add, departmentName, addDepartment, roles, checkDepartment, addRole, checkRoleExists,
     checkDepartmentAndRoles, checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee,
-    checkIfManger, addEmployeeWithManager, queryAllDepartment
+    checkIfManger, queryAllDepartment
 
 } = require("./add.js");
 
@@ -128,44 +128,9 @@ const mainMenu = async () => {
                                                 console.log(manager, "Obj of manager-back from checkIfManager func");
                                                 addEmployee(temp).then(() => mainMenu());
                                             });
-
-
-
-
-
                                         });
-
-
-
-
                                     });
                                 });
-
-
-
-
-                                // if (responseNameDep.ansConfirm) {
-                                //     
-
-                                // } else {
-
-                                //     checkdOfRolesAndDep(responseNameDep.nameDepartment).then(response => {
-                                //         const table = cTable.getTable(response);
-                                //         console.log(table);
-                                //         inquirer.prompt({
-
-                                //             type: "input",
-                                //             name: "idUser",
-                                //             message: "choice wich role you want your employee\n select the id colum",
-                                //         }).then(id => {
-                                //             const parseId = parseInt(id.idUser);
-                                //             console.log(parseId);
-                                //             addEmployee(parseId).then(() => mainMenu());
-                                //         })
-                                //     });
-                                // }
-
-
                                 break;
                             case "Main Menu":
                                 mainMenu();

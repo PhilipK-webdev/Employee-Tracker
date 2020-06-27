@@ -138,45 +138,90 @@ const makeEmployee = () => {
 const updateEmployeeWithManager = (id) => {
     return new Promise((resolve, reject) => {
         joinRoles().then(resAllRoles => {
-
             const queryAllRoles = [];
             for (let i = 0; i < resAllRoles.length; i++) {
                 queryAllRoles.push(resAllRoles[i].title);
             }
+            employee().then(employees => {
+                const queryAllEmployee = [];
+                for (let i = 0; i < employees.length; i++) {
+                    queryAllEmployee.push(employees[i].first_name + " " + employees[i].last_name);
+                }
+                inquirer.prompt([
+                    {
 
-            inquirer.prompt([
-                {
+                        type: "input",
+                        name: "first",
+                        message: "new first name",
 
-                    type: "input",
-                    name: "first",
-                    message: "new first name",
+                    },
+                    {
 
-                },
-                {
+                        type: "input",
+                        name: "last",
+                        message: "new last name",
 
-                    type: "input",
-                    name: "last",
-                    message: "new last name",
+                    },
+                    {
 
-                },
-                {
+                        type: "list",
+                        name: "role",
+                        message: "new role",
+                        choices: queryAllRoles,
 
-                    type: "list",
-                    name: "role",
-                    message: "new role",
-                    choices: queryAllRoles,
+                    },
+                    {
 
-                },
+                        type: "confirm",
+                        name: "confirm",
+                        message: "does your employee has manager?"
+                    },
+                ]).then(response => {
+                    if (response.confirm) {
+                        inquirer.prompt({
 
-            ]).then(response => {
+                            type: "list",
+                            name: "managerSelected",
+                            message: "select who is the manager",
+                            choices: queryAllEmployee
+                        }).then(answerUser => {
 
-                let fil = resAllRoles.filter(element => {
-                    return element.title === response.role;
-                });
-                connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: fil[0].id }, { id: id }], (err, data) => {
-                    err ? reject(err) : resolve({ msg: "Success1" });
+                            let singleManager = [];
+                            for (let i = 0; i < employees.length; i++) {
+                                if (employees[i].first_name + " " + employees[i].last_name === answerUser.managerSelected) {
+                                    singleManager.push(employees[i]);
+                                }
+
+                            }
+
+                            let fil = resAllRoles.filter(element => {
+                                return element.title === response.role;
+                            });
+                            connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: singleManager[0].id }, { id: id }], (err, data) => {
+                                err ? reject(err) : resolve({ msg: "Success1" });
+                            });
+
+                        });
+
+
+                    } else {
+
+                        const maNull = null
+                        let fil = resAllRoles.filter(element => {
+                            return element.title === response.role;
+                        });
+                        connection.query("UPDATE employee SET ? WHERE ?", [{ first_name: response.first, last_name: response.last, role_id: fil[0].id, manager_id: maNull }, { id: id }], (err, data) => {
+                            err ? reject(err) : resolve({ msg: "Success1" });
+                        });
+
+                    }
+
+
+
+
                 });
             });
+
         });
 
     });

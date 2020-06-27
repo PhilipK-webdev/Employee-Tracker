@@ -1,6 +1,7 @@
 const connection = require("../sql/sql.js");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
+const update = require("./update.js");
 const add = async () => {
     return await addCompany();
 }
@@ -207,39 +208,55 @@ const addEmployee = (objTemp) => {
             },
         ]).then(resFirstLast => {
             const id = parseInt(objTemp[0].department_id);
-            connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id }],
-                (err, data) => {
 
-                    err ? reject(err) : resolve({ msg: "Success" });
-                });
+            inquirer.prompt({
+
+                type: "confirm",
+                name: "confirm",
+                message: "does your employee has manager?"
+            }).then(res => {
+                if (res.confirm) {
+                    update.employee().then(employees => {
+                        const queryAllEmployee = [];
+                        for (let i = 0; i < employees.length; i++) {
+                            queryAllEmployee.push(employees[i].first_name + " " + employees[i].last_name);
+                        }
+
+                        inquirer.prompt({
+
+                            type: "list",
+                            name: "managerSelected",
+                            message: "select who is the manager",
+                            choices: queryAllEmployee
+                        }).then(answerUser => {
+
+                            let singleManager = [];
+                            for (let i = 0; i < employees.length; i++) {
+                                if (employees[i].first_name + " " + employees[i].last_name === answerUser.managerSelected) {
+                                    singleManager.push(employees[i]);
+                                }
+
+                            }
+                            console.log(singleManager[0].id);
+                            connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id, manager_id: singleManager[0].id }],
+                                (err, data) => {
+
+                                    err ? reject(err) : resolve({ msg: "Success" });
+                                });
+                        });
+                    });
+                } else {
+
+                    connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id }],
+                        (err, data) => {
+
+                            err ? reject(err) : resolve({ msg: "Success" });
+                        });
+                }
+            });
         });
     });
 }
-
-const addEmployeeWithManager = (id, managerId) => {
-    return new Promise((resolve, reject) => {
-        inquirer.prompt([
-            {
-                type: "input",
-                name: "firstName",
-                message: "Employee first name",
-            },
-            {
-                type: "input",
-                name: "lastName",
-                message: "Employee last name",
-            },
-        ]).then(resFirstLast => {
-
-            connection.query("INSERT INTO employee SET ?", [{ first_name: resFirstLast.firstName, last_name: resFirstLast.lastName, role_id: id, manager_id: managerId }],
-                (err, data) => {
-
-                    err ? reject(err) : resolve({ msg: "Success" });
-                });
-        });
-    });
-}
-
 
 const confirmAnswer = async (input) => {
     if (input === "Manager") {
@@ -254,7 +271,7 @@ module.exports = {
     add, addDepartment, departmentName, roles,
     checkDepartment, addRole, checkRoleExists, checkDepartmentAndRoles,
     checkRoleManager, checkdOfRolesAndDep, createEmployee, addEmployee,
-    checkIfManger, addEmployeeWithManager, queryAllDepartment
+    checkIfManger, queryAllDepartment
 };
 
 
