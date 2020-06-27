@@ -124,8 +124,8 @@ const mainMenu = async () => {
                                                     return name.title === title.userRole;
                                                 });
                                                 console.log(temp);
-                                                console.log(title.userRole);
-                                                console.log(manager, "Obj of manager-back from checkIfManager func");
+                                                // console.log(title.userRole);
+                                                // console.log(manager, "Obj of manager-back from checkIfManager func");
                                                 addEmployee(temp).then(() => mainMenu());
                                             });
                                         });

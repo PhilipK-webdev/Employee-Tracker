@@ -207,8 +207,9 @@ const addEmployee = (objTemp) => {
                 message: "Employee last name",
             },
         ]).then(resFirstLast => {
-            const id = parseInt(objTemp[0].department_id);
 
+            const id = parseInt(objTemp[0].department_id);
+            console.log(id);
             inquirer.prompt({
 
                 type: "confirm",
